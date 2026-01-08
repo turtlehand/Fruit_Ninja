@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="01. Player">
+      <UniqueIdentifier>{5bd6776e-58fc-49a1-bf7f-493d88ca02d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. World">
+      <UniqueIdentifier>{ce1512a7-8e34-4015-ba62-918f20a2e955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Monster">
+      <UniqueIdentifier>{28771861-e1b3-4039-8d3c-40b1cdfe1dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Controller">
+      <UniqueIdentifier>{f041a56d-4d2d-429e-84a9-bf37b71e325d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Component">
+      <UniqueIdentifier>{41611e99-9bf4-4733-afb4-3fa6d8966e8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06. Setting">
+      <UniqueIdentifier>{96f1ab81-1f6a-478c-9e61-e38766f5be29}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Player\Player.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="World\MainWorld.cpp">
+      <Filter>02. World</Filter>
+    </ClCompile>
+    <ClCompile Include="Player\Bullet.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster\Monster.cpp">
+      <Filter>03. Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Missile.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Player\GuidedM.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="DamageController.cpp">
+      <Filter>04. Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster\MonsterSpawnPoint.cpp">
+      <Filter>03. Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\StateComponent.cpp">
+      <Filter>04. Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Player\ChargeEffect.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Player\Shild.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalSetting.cpp">
+      <Filter>06. Setting</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\Player.h">
+      <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientInfo.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="World\MainWorld.h">
+      <Filter>02. World</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\Bullet.h">
+      <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster\Monster.h">
+      <Filter>03. Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Missile.h">
+      <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\GuidedM.h">
+      <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageController.h">
+      <Filter>04. Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster\MonsterSpawnPoint.h">
+      <Filter>03. Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\StateComponent.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\ChargeEffect.h">
+      <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\Shild.h">
+      <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalSetting.h">
+      <Filter>06. Setting</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
