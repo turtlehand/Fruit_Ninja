@@ -98,7 +98,7 @@ bool CMonster::Init()
 		Collider->SetPivot(0.f, 0.f);
 		Collider->SetDebugDraw(true);
 		Collider->SetInheritScale(false);
-		//Collider->SetEnable(false);
+		Collider->SetEnable(false);
 	}
 
 	m_BoxCollider = CreateComponent<CColliderBox2D>("Body");
@@ -121,10 +121,11 @@ bool CMonster::Init()
 	if (ColliderLine)
 	{
 		ColliderLine->SetCollisionProfile("Monster");
-		ColliderLine->SetLineDir(0.f, 100.f, 0.f);
+		ColliderLine->SetLineDir(0.f, 1000.f, 0.f);
+		ColliderLine->SetLineDistance(1000.f);
 		ColliderLine->SetDebugDraw(true);
 		ColliderLine->SetInheritScale(false);
-		ColliderLine->SetEnable(false);
+		//ColliderLine->SetEnable(false);
 	}
 
 	auto World = m_World.lock();

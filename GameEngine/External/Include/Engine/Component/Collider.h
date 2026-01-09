@@ -1,7 +1,7 @@
 #pragma once
 #include "SceneComponent.h"
 
-class CCollider abstract:
+class CCollider abstract :
 	public CSceneComponent
 {
 	friend class CGameObject;
@@ -31,7 +31,8 @@ protected:
 	std::shared_ptr<class CCBufferTransform> m_TransformCBuffer;
 	std::shared_ptr<class CCBufferCollider> m_ColliderCBuffer;
 
-	std::function<void(const FVector3&, CCollider*)> m_CollisionBeginFunc;
+	std::function<void(const std::vector<FVector3>&, CCollider*)> m_CollisionBeginFunc;
+	std::function<void(const std::vector<FVector3>&, CCollider*)> m_CollisionFunc;
 	std::function<void(CCollider*)> m_CollisionEndFunc;
 
 
@@ -55,11 +56,12 @@ protected:
 	virtual CCollider* Clone() const = 0;
 
 public:
-	void CallCollisionBegin(const FVector3& _HitPoint, std::weak_ptr<CCollider>& _Collider);
+	void CallCollisionBegin(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider);
+	void CallCollision(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider);
 	void CallCollisionEnd(std::weak_ptr<CCollider>& _Collider);
 
 public:
-	virtual bool Collision(FVector3& _HitPoint, std::shared_ptr<CCollider> _Dest) = 0;
+	virtual bool Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> _Dest) = 0;
 
 	/// <summary>
 	/// 다른 Collider와 충돌 시 호출되는 함수를 등록한다.
@@ -68,9 +70,15 @@ public:
 	/// <param name="_Obj"></param>
 	/// <param name="_Func"></param>
 	template<typename T>
-	void SetCollisionBeginFunction(T* _Obj, void(T::* _Func)(const FVector3&, CCollider*))
+	void SetCollisionBeginFunction(T* _Obj, void(T::* _Func)(const std::vector<FVector3>&, CCollider*))
 	{
 		m_CollisionBeginFunc = std::bind(_Func, _Obj, std::placeholders::_1, std::placeholders::_2);
+	}
+
+	template<typename T>
+	void SetCollisionFunction(T* _Obj, void(T::* _Func)(const std::vector<FVector3>&, CCollider*))
+	{
+		m_CollisionFunc = std::bind(_Func, _Obj, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	/// <summary>

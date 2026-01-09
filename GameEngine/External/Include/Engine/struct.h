@@ -84,6 +84,7 @@ struct FPolygon2DInfo
 {
     FVector3 Center;
     std::vector<FVector3> Points;
+    std::vector<FVector3> WorldPoint;
 };
 
 struct FCollisionChannel

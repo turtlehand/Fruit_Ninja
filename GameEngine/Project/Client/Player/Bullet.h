@@ -57,7 +57,7 @@ protected:
 	void CalculateDistance(double _DeltaTime);
 	void CalculateCollision();
 
-	void CollisionBegin(const FVector3& _HitPoint, class CCollider* _Dest);
+	void CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest);
 	void CollisionEnd(class CCollider* _Dest);
 
 };

@@ -130,7 +130,7 @@ CColliderBox2D* CColliderBox2D::Clone() const
 }
 
 
-bool CColliderBox2D::Collision(FVector3& _HitPoint, std::shared_ptr<CCollider> _Dest)
+bool CColliderBox2D::Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> _Dest)
 {
     // 상대방의 충돌체 모양이 무엇이냐에 따라 충돌 알고리즘이 달라진다.
     switch (_Dest->GetColliderType())

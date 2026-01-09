@@ -141,7 +141,7 @@ void CWorldCollision::Update(double _DeltaTime)
 			}
 
 			// 실제 충돌처리를 진행한다.
-			FVector3 HitPoint;
+			std::vector<FVector3> HitPoint;
 			
 			// Collision 함수의 반환값이 true일 경우 충돌 되었다는 의미이다.
 			if (SrcCollider->Collision(HitPoint, DestCollider))
@@ -151,6 +151,11 @@ void CWorldCollision::Update(double _DeltaTime)
 				{
 					SrcCollider->CallCollisionBegin(HitPoint, *iter1);
 					DestCollider->CallCollisionBegin(HitPoint, *iter);
+				}
+				else 
+				{
+					SrcCollider->CallCollision(HitPoint, *iter1);
+					DestCollider->CallCollision(HitPoint, *iter);
 				}
 			}
 			// 두 물체가 현재 프레임에는 부딪히지 않았지만 이전 프레임까지는 부딪히고 있었을 경우는 이제 막 떨어지는 경우이다.

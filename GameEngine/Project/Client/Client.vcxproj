@@ -38,6 +38,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Player\Bullet.cpp" />
+    <ClCompile Include="Player\BulletEffect.cpp" />
     <ClCompile Include="Player\ChargeEffect.cpp" />
     <ClCompile Include="Player\GuidedM.cpp" />
     <ClCompile Include="Player\Player.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="Monster\MonsterSpawnPoint.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Player\Bullet.h" />
+    <ClInclude Include="Player\BulletEffect.h" />
     <ClInclude Include="Player\ChargeEffect.h" />
     <ClInclude Include="Player\GuidedM.h" />
     <ClInclude Include="Player\Player.h" />

@@ -22,22 +22,12 @@ bool CGlobalSetting::Init()
 	CCollisionInfoManager::GetInst()->CreateProfile("MonsterAttack",
 		"MonsterAttack", true);
 
-	CCollisionInfoManager::GetInst()->SetProfileInteraction(
-		"PlayerAttack", "PlayerAttack",
-		ECollisionInteraction::Ignore);
-	CCollisionInfoManager::GetInst()->SetProfileInteraction(
-		"PlayerAttack", "Player",
-		ECollisionInteraction::Ignore);
-	CCollisionInfoManager::GetInst()->SetProfileInteraction(
-		"PlayerAttack", "MonsterAttack",
-		ECollisionInteraction::Ignore);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("PlayerAttack", "PlayerAttack", ECollisionInteraction::Ignore);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("PlayerAttack", "Player", ECollisionInteraction::Ignore);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("PlayerAttack", "MonsterAttack", ECollisionInteraction::Ignore);
 
-	CCollisionInfoManager::GetInst()->SetProfileInteraction(
-		"MonsterAttack", "Monster",
-		ECollisionInteraction::Ignore);
-	CCollisionInfoManager::GetInst()->SetProfileInteraction(
-		"MonsterAttack", "MonsterAttack",
-		ECollisionInteraction::Ignore);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("MonsterAttack", "Monster", ECollisionInteraction::Ignore);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("MonsterAttack", "MonsterAttack", ECollisionInteraction::Ignore);
 
 	return true;
 }

@@ -4,6 +4,7 @@
 #include "ColliderBox2D.h"
 #include "ColliderSphere2D.h"
 #include "ColliderLine2D.h"
+#include "ColliderPolygon2D.h"
 
 /// <summary>
 /// Box 콜라이더끼리 충돌 되었는지
@@ -12,7 +13,7 @@
 /// <param name="_Src"></param>
 /// <param name="_Dest"></param>
 /// <returns></returns>
-bool CCollision::CollisionBox2DToBox2D(FVector3& _HitPoint, CColliderBox2D* _Src, CColliderBox2D* _Dest)
+bool CCollision::CollisionBox2DToBox2D(std::vector<FVector3>& _HitPoint, CColliderBox2D* _Src, CColliderBox2D* _Dest)
 {
 	if (!_Src || !_Dest)
 		return false;
@@ -27,7 +28,7 @@ bool CCollision::CollisionBox2DToBox2D(FVector3& _HitPoint, CColliderBox2D* _Src
 	return CollisionOBB2DToOBB2D(_HitPoint, _Src->GetInfo(), _Dest->GetInfo());
 }
 
-bool CCollision::CollisionAABB2DToAABB2D(FVector3& _HitPoint, const FBox2DInfo& _Src, const FBox2DInfo& _Dest)
+bool CCollision::CollisionAABB2DToAABB2D(std::vector<FVector3>& _HitPoint, const FBox2DInfo& _Src, const FBox2DInfo& _Dest)
 {
 	FVector3 SrcMin, SrcMax, DestMin, DestMax;
 
@@ -54,12 +55,12 @@ bool CCollision::CollisionAABB2DToAABB2D(FVector3& _HitPoint, const FBox2DInfo& 
 	IntersectMax.x = SrcMax.x < DestMax.x ? SrcMax.x : DestMax.x;
 	IntersectMax.y = SrcMax.y < DestMax.y ? SrcMax.y : DestMax.y;
 
-	_HitPoint = (IntersectMin + IntersectMax) * 0.5f;
+	_HitPoint.push_back((IntersectMin + IntersectMax) * 0.5f);
 
 	return true;
 }
 
-bool CCollision::CollisionOBB2DToOBB2D(FVector3& _HitPoint, const FBox2DInfo& _Src, const FBox2DInfo& _Dest)
+bool CCollision::CollisionOBB2DToOBB2D(std::vector<FVector3>& _HitPoint, const FBox2DInfo& _Src, const FBox2DInfo& _Dest)
 {
 	/*
 	float ProjLength = 0.f;
@@ -160,7 +161,7 @@ bool CCollision::CollisionOBB2DToOBB2D(FVector3& _HitPoint, const FBox2DInfo& _S
 	IntersectMax.x = SrcMax.x < DestMax.x ? SrcMax.x : DestMax.x;
 	IntersectMax.y = SrcMax.y < DestMax.y ? SrcMax.y : DestMax.y;
 
-	_HitPoint = (IntersectMin + IntersectMax) * 0.5f;
+	_HitPoint.push_back((IntersectMin + IntersectMax) * 0.5f);
 
 	return true;
 
@@ -192,7 +193,7 @@ bool CCollision::AxisProjection(const FVector3& _CenterLine, const FVector3& _Pr
 	return false;
 }
 
-bool CCollision::CollisionSphere2DToSphere2D(FVector3& _HitPoint, CColliderSphere2D* _Src, CColliderSphere2D* _Dest)
+bool CCollision::CollisionSphere2DToSphere2D(std::vector<FVector3>& _HitPoint, CColliderSphere2D* _Src, CColliderSphere2D* _Dest)
 {
 	if (!_Src || !_Dest)
 		return false;
@@ -203,7 +204,7 @@ bool CCollision::CollisionSphere2DToSphere2D(FVector3& _HitPoint, CColliderSpher
 	return true;
 }
 
-bool CCollision::CollisionSphere2DToSphere2D(FVector3& _HitPoint, const FSphere2DInfo& _Src, const FSphere2DInfo& _Dest)
+bool CCollision::CollisionSphere2DToSphere2D(std::vector<FVector3>& _HitPoint, const FSphere2DInfo& _Src, const FSphere2DInfo& _Dest)
 {
 	// 센터와 센터 사이의 거리를 구한다.
 	float Distance = _Src.Center.Distance(_Dest.Center);
@@ -218,12 +219,12 @@ bool CCollision::CollisionSphere2DToSphere2D(FVector3& _HitPoint, const FSphere2
 	FVector3 Dir = _Src.Center - _Dest.Center;
 	Dir.Normalize();
 
-	_HitPoint = _Src.Center + Dir * (_Src.Radius - Gap);
+	_HitPoint.push_back(_Src.Center + Dir * (_Src.Radius - Gap));
 
 	return true;
 }
 
-bool CCollision::CollisionBox2DToSphere2D(FVector3& _HitPoint, CColliderBox2D* _Box, CColliderSphere2D* _Sphere)
+bool CCollision::CollisionBox2DToSphere2D(std::vector<FVector3>& _HitPoint, CColliderBox2D* _Box, CColliderSphere2D* _Sphere)
 {
 	if (!_Box || !_Sphere)
 		return false;
@@ -234,7 +235,7 @@ bool CCollision::CollisionBox2DToSphere2D(FVector3& _HitPoint, CColliderBox2D* _
 	return true;
 }
 
-bool CCollision::CollisionBox2DToSphere2D(FVector3& _HitPoint, const FBox2DInfo& _Box, const FSphere2DInfo& _Sphere)
+bool CCollision::CollisionBox2DToSphere2D(std::vector<FVector3>& _HitPoint, const FBox2DInfo& _Box, const FSphere2DInfo& _Sphere)
 {
 	FVector3 CenterLine = _Box.Center - _Sphere.Center;
 
@@ -259,7 +260,7 @@ bool CCollision::CollisionBox2DToSphere2D(FVector3& _HitPoint, const FBox2DInfo&
 	return true;
 }
 
-bool CCollision::CollisionLine2DToLine2D(FVector3& _HitPoint, CColliderLine2D* _Src, CColliderLine2D* _Dest)
+bool CCollision::CollisionLine2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderLine2D* _Src, CColliderLine2D* _Dest)
 {
 	if (!_Src || !_Dest)
 		return false;
@@ -297,7 +298,7 @@ ECCWResult::Type CCollision::CCW2D(const FVector3& _p1, const FVector3& _p2, con
 
 }
 
-bool CCollision::CollisionLine2DToLine2D(FVector3& _HitPoint, const FLine2DInfo& _Src, const FLine2DInfo& _Dest)
+bool CCollision::CollisionLine2DToLine2D(std::vector<FVector3>& _HitPoint, const FLine2DInfo& _Src, const FLine2DInfo& _Dest)
 {
 
 	// 두 선이 교차하는지 판단해야 한다.
@@ -349,13 +350,17 @@ bool CCollision::CollisionLine2DToLine2D(FVector3& _HitPoint, const FLine2DInfo&
 		// 직선2 : a1 * x + b2 * y = c2
 		float   Det = v.x * w.y - v.y * w.x;
 
-		_HitPoint.x = ((_Src.Start.x * _Src.End.y - _Src.Start.y * _Src.End.x) * (_Dest.Start.x - _Dest.End.x) -
+		FVector3 HitPoint;
+
+		HitPoint.x = ((_Src.Start.x * _Src.End.y - _Src.Start.y * _Src.End.x) * (_Dest.Start.x - _Dest.End.x) -
 			(_Dest.Start.x * _Dest.End.y - _Dest.Start.y * _Dest.End.x) * (_Src.Start.x - _Src.End.x)) 
 			/ Det;
 
-		_HitPoint.y = ((_Src.Start.x * _Src.End.y - _Src.Start.y * _Src.End.x) * (_Dest.Start.y - _Dest.End.y) -
+		HitPoint.y = ((_Src.Start.x * _Src.End.y - _Src.Start.y * _Src.End.x) * (_Dest.Start.y - _Dest.End.y) -
 			(_Dest.Start.x * _Dest.End.y - _Dest.Start.y * _Dest.End.x) * (_Src.Start.y - _Src.End.y)) 
 			/ Det;
+
+		_HitPoint.push_back(HitPoint);
 
 		return true;
 	}
@@ -363,25 +368,25 @@ bool CCollision::CollisionLine2DToLine2D(FVector3& _HitPoint, const FLine2DInfo&
 	// _Dest.Start가 _Src 선분 위에 존재할 경우
 	if (ccw1 == 0 && PointOnLine2D(_Src.Start, _Src.End, _Dest.Start))
 	{
-		_HitPoint = _Dest.Start;
+		_HitPoint.push_back(_Dest.Start);
 		return true;
 	}
 	// _Dest.End가 _Src 선분 위에 존재할 경우
 	else if (ccw2 == 0 && PointOnLine2D(_Src.Start, _Src.End, _Dest.End))
 	{
-		_HitPoint = _Dest.End;
+		_HitPoint.push_back(_Dest.End);
 		return true;
 	}
 	// _Src.Start가 _Dest 선분 위에 존재할 경우
 	else if (ccw3 == 0 && PointOnLine2D(_Dest.Start, _Dest.End, _Src.Start))
 	{
-		_HitPoint = _Dest.Start;
+		_HitPoint.push_back(_Dest.Start);
 		return true;
 	}
 	// _Src.End가 _Dest 선분 위에 존재할 경우
 	else if (ccw4 == 0 && PointOnLine2D(_Dest.Start, _Dest.End, _Src.End))
 	{
-		_HitPoint = _Dest.End;
+		_HitPoint.push_back(_Dest.End);
 		return true;
 	}
 
@@ -414,7 +419,7 @@ bool CCollision::PointOnLine2D(const FVector3& _LineStart, const FVector3& _Line
 	return true;
 }
 
-bool CCollision::CollisionBox2DToLine2D(FVector3& _HitPoint, CColliderBox2D* _Src, CColliderLine2D* _Dest)
+bool CCollision::CollisionBox2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderBox2D* _Src, CColliderLine2D* _Dest)
 {
 	if (!_Src || !_Dest)
 		return false;
@@ -425,7 +430,7 @@ bool CCollision::CollisionBox2DToLine2D(FVector3& _HitPoint, CColliderBox2D* _Sr
 	return true;
 }
 
-bool CCollision::CollisionBox2DToLine2D(FVector3& _HitPoint, const FBox2DInfo& _Box, const FLine2DInfo& _Line)
+bool CCollision::CollisionBox2DToLine2D(std::vector<FVector3>& _HitPoint, const FBox2DInfo& _Box, const FLine2DInfo& _Line)
 {
 	// 선을 구성하는 점 2개 중 사각형 안에 들어오는 점이 있다면 무조건 충돌이다.
 	if (CollisionBox2DToPoint(_HitPoint, _Box, _Line.Start))
@@ -479,27 +484,13 @@ bool CCollision::CollisionBox2DToLine2D(FVector3& _HitPoint, const FBox2DInfo& _
 		if (CollisionLine2DToLine2D(_HitPoint, _Line, BoxLine[i]))
 		{
 			Result = true;
-
-			// 충돌 지점 과 선의 거리를 제보고 가장 가까운 위치를 선택한다.
-			float Dist1 = _Line.Start.Distance(_HitPoint);
-
-			if (Dist1 < Dist)
-			{
-				HitResult = _HitPoint;
-				Dist = Dist1;
-			}
 		}
-	}
-
-	if (Result)
-	{
-		_HitPoint = HitResult;
 	}
 
 	return Result;
 }
 
-bool CCollision::CollisionBox2DToPoint(FVector3& _HitPoint, const FBox2DInfo& _Box, const FVector3& _Point)
+bool CCollision::CollisionBox2DToPoint(std::vector<FVector3>& _HitPoint, const FBox2DInfo& _Box, const FVector3& _Point)
 {
 	// CenterLine을 상자의 X, Y축에 투영하여 구간을 비교한다.
 	FVector3 CenterLine = _Point - _Box.Center;
@@ -518,12 +509,12 @@ bool CCollision::CollisionBox2DToPoint(FVector3& _HitPoint, const FBox2DInfo& _B
 	if (Dist > _Box.HalfSize.y)
 		return false;
 
-	_HitPoint = _Point;
+	_HitPoint.push_back(_Point);
 
 	return true;
 }
 
-bool CCollision::CollisionSphere2DToLine2D(FVector3& _HitPoint, CColliderSphere2D* _Sphere, CColliderLine2D* _Line)
+bool CCollision::CollisionSphere2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderSphere2D* _Sphere, CColliderLine2D* _Line)
 {
 	if (!_Sphere || !_Line)
 		return false;
@@ -534,7 +525,7 @@ bool CCollision::CollisionSphere2DToLine2D(FVector3& _HitPoint, CColliderSphere2
 	return true;;
 }
 
-bool CCollision::CollisionSphere2DToLine2D(FVector3& _HitPoint, const FSphere2DInfo& _Sphere, const FLine2DInfo& _Line)
+bool CCollision::CollisionSphere2DToLine2D(std::vector<FVector3>& _HitPoint, const FSphere2DInfo& _Sphere, const FLine2DInfo& _Line)
 {
 	/*
 	교점 P는 2개가 나올 수 있다.
@@ -609,7 +600,58 @@ bool CCollision::CollisionSphere2DToLine2D(FVector3& _HitPoint, const FSphere2DI
 		if (HitDist < 0.f)
 			HitDist = t1 > t2 ? t1 : t2;
 
-		_HitPoint = _Line.Start + Dir * HitDist;
+		_HitPoint.push_back(_Line.Start + Dir * HitDist);
+	}
+
+	return Result;
+
+}
+
+bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderPolygon2D* _Polygon, CColliderLine2D* _Line)
+{
+	if (!_Polygon || !_Line)
+		return false;
+
+	if (!CollisionPolygon2DToLine2D(_HitPoint, _Polygon->GetInfo(), _Line->GetInfo()))
+		return false;
+
+	return true;;
+}
+
+bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, const FPolygon2DInfo& _Polygon, const FLine2DInfo& _Line)
+{
+	// 하지만 들어오지 않을 경우 사각형을 구성하는 4개의 변을 만들고 선을 교차하는 변이 있는지 체크하여 검사한다.
+	// 사각형을 구상하는 4개의 꼭지점을 구한다.
+	std::vector<FVector3> Pos(_Polygon.Points.size());
+
+	for (int i = 0; i < _Polygon.Points.size(); ++i)
+	{
+		Pos[i] = _Polygon.WorldPoint[i];
+		
+	}
+
+	std::vector<FLine2DInfo> Line(_Polygon.Points.size());
+
+	for (int i = 0; i < _Polygon.Points.size() - 1; ++i)
+	{
+		Line[i].Start = Pos[i];
+		Line[i].End = Pos[i + 1];
+	}
+
+	Line[_Polygon.Points.size() - 1].Start = Pos[_Polygon.Points.size() - 1];
+	Line[_Polygon.Points.size() - 1].End = Pos[0];
+
+	bool Result = false;
+	float Dist = FLT_MAX;
+	FVector3 HitResult;
+
+	// _Line과 박스의 각 선분 충돌 검사를 한다.
+	for (int i = 0; i < _Polygon.Points.size(); ++i)
+	{
+		if (CollisionLine2DToLine2D(_HitPoint, _Line, Line[i]))
+		{
+			Result = true;
+		}
 	}
 
 	return Result;

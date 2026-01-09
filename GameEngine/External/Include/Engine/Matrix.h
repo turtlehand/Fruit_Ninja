@@ -88,6 +88,22 @@ __declspec(align(16)) union FMatrix
 		return FMatrix(m * _m);
 	}
 
+	FVector4 operator*(const FVector4& vec)
+	{
+		using namespace DirectX;
+
+		// FVector4 → XMVECTOR
+		XMVECTOR v = XMVectorSet(vec.x, vec.y, vec.z, vec.w);
+
+		// 행렬 × 벡터
+		XMVECTOR r = XMVector4Transform(v, m);
+
+		// 결과 반환
+		FVector4 out;
+		XMStoreFloat4(reinterpret_cast<XMFLOAT4*>(&out), r);
+		return out;
+	}
+
 	void Identity()
 	{
 		m = DirectX::XMMatrixIdentity();

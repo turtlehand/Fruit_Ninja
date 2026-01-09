@@ -63,7 +63,6 @@ protected:
 	virtual CColliderLine2D* Clone()	const;
 
 public:
-	virtual bool Collision(FVector3& HitPoint,
-		std::shared_ptr<CCollider> Dest);
+	virtual bool Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> Dest) override;
 };
 

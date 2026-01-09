@@ -140,20 +140,27 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
     CCollider::PostUpdate(_DeltaTime);
 
     m_Polygon2DInfo.Center = m_WorldPos;
-
+    m_Polygon2DInfo.WorldPoint.resize(m_Polygon2DInfo.Points.size());
     // 사각형을 구성하는 4개의 꼭지점을 구한다.
     std::vector<FVector3> Pos;
 
     for (int i = 0; i < m_Polygon2DInfo.Points.size(); ++i)
     {
+        FMatrix matWorld;
+
         if (m_InheritScale)
         {
-            Pos.push_back(m_Polygon2DInfo.Center + m_Polygon2DInfo.Points[i] * m_WorldScale);
+            matWorld = m_WorldMatrix;
         }
         else
         {
-            Pos.push_back(m_Polygon2DInfo.Center + m_Polygon2DInfo.Points[i]);
+            matWorld = m_RotMatrix * m_TranslateMatrix;
         }
+        FVector3 Point = m_Polygon2DInfo.Points[i];
+        FVector4 Point4 = matWorld * FVector4(Point.x,Point.y, Point.z, 1.f);
+        Point = FVector3(Point4.x, Point4.y, Point4.z);
+        Pos.push_back(Point);
+        m_Polygon2DInfo.WorldPoint[i] = Point;
 
     }
 
@@ -179,12 +186,6 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
 CColliderPolygon2D* CColliderPolygon2D::Clone()	const
 {
     return new CColliderPolygon2D(*this);
-}
-
-
-bool CColliderPolygon2D::Collision(FVector3& HitPoint, std::shared_ptr<CCollider> Dest)
-{
-    return false;
 }
 
 /// <summary>
@@ -217,4 +218,16 @@ std::weak_ptr<class CMesh> CColliderPolygon2D::CreateMesh()
     m_PolygonMesh = Mesh;
 
     return Mesh;
+}
+
+bool CColliderPolygon2D::Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> _Dest)
+{
+    // 상대방의 충돌체 모양이 무엇이냐에 따라 충돌 알고리즘이 달라진다.
+    switch (_Dest->GetColliderType())
+    {
+    case EColliderType::Line2D:
+        return CCollision::CollisionPolygon2DToLine2D(_HitPoint, this, dynamic_cast<CColliderLine2D*>(_Dest.get()));
+        break;
+    }
+    return false;
 }

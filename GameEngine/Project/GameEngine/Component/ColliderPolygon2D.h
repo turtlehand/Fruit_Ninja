@@ -44,7 +44,7 @@ protected:
 	virtual CColliderPolygon2D* Clone()	const;
 
 public:
-	virtual bool Collision(FVector3& HitPoint, std::shared_ptr<CCollider> Dest) override;
+	virtual bool Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> _Dest) override;
 
 private:
 	std::weak_ptr<class CMesh> CreateMesh(); 

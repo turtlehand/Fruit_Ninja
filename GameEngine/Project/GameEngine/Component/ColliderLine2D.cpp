@@ -11,6 +11,7 @@
 #include "Collision.h"
 #include "ColliderBox2D.h"
 #include "ColliderSphere2D.h"
+#include "ColliderPolygon2D.h"
 
 CColliderLine2D::CColliderLine2D() :
 	CCollider(EColliderType::Line2D),
@@ -117,8 +118,7 @@ CColliderLine2D* CColliderLine2D::Clone()	const
 	return new CColliderLine2D(*this);
 }
 
-bool CColliderLine2D::Collision(FVector3& _HitPoint,
-	std::shared_ptr<CCollider> _Dest)
+bool CColliderLine2D::Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> _Dest)
 {
 	// 상대방의 충돌체 모양이 무엇이냐에 따라 충돌 알고리즘이 달라진다.
 	switch (_Dest->GetColliderType())
@@ -128,6 +128,9 @@ bool CColliderLine2D::Collision(FVector3& _HitPoint,
 		break;
 	case EColliderType::Sphere2D:
 		return CCollision::CollisionSphere2DToLine2D(_HitPoint, dynamic_cast<CColliderSphere2D*>(_Dest.get()), this);
+		break;
+	case EColliderType::Polygon2D:
+		return CCollision::CollisionPolygon2DToLine2D(_HitPoint, dynamic_cast<CColliderPolygon2D*>(_Dest.get()), this);
 		break;
 	case EColliderType::Line2D:
 		return CCollision::CollisionLine2DToLine2D(_HitPoint, this, dynamic_cast<CColliderLine2D*>(_Dest.get()));

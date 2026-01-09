@@ -214,7 +214,7 @@ void CCollider::EraseCollisionObject(CCollider* _Collider)
 }
 
 
-void CCollider::CallCollisionBegin(const FVector3& _HitPoint, std::weak_ptr<CCollider>& _Collider)
+void CCollider::CallCollisionBegin(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider)
 {
 	auto Collider = _Collider.lock();
 
@@ -224,6 +224,18 @@ void CCollider::CallCollisionBegin(const FVector3& _HitPoint, std::weak_ptr<CCol
 
 	if (m_CollisionBeginFunc)
 		m_CollisionBeginFunc(_HitPoint, Collider.get());
+}
+
+void CCollider::CallCollision(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider)
+{
+	auto Collider = _Collider.lock();
+
+	m_CollisionObjectMap.insert(std::make_pair(Collider.get(), _Collider));
+
+	m_Collision = true;
+
+	if (m_CollisionFunc)
+		m_CollisionFunc(_HitPoint, Collider.get());
 }
 
 void CCollider::CallCollisionEnd(std::weak_ptr<CCollider>& _Collider)

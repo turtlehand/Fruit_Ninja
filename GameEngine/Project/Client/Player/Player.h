@@ -78,5 +78,8 @@ private:
     void Skill1Press();
     void Skill1Hold();
     void Skill1Release();
+
+    void CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest);
+    void CollisionEnd(class CCollider* _Dest);
 };
 

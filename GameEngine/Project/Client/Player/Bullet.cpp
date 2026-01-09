@@ -159,7 +159,7 @@ void CBullet::CalculateCollision()
 	}
 }
 
-void CBullet::CollisionBegin(const FVector3& _HitPoint, CCollider* _Dest)
+void CBullet::CollisionBegin(const std::vector<FVector3>& _HitPoint, CCollider* _Dest)
 {
 	Destroy();
 }

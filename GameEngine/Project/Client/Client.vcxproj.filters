@@ -75,6 +75,9 @@
     <ClCompile Include="GlobalSetting.cpp">
       <Filter>06. Setting</Filter>
     </ClCompile>
+    <ClCompile Include="Player\BulletEffect.cpp">
+      <Filter>01. Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="GlobalSetting.h">
       <Filter>06. Setting</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\BulletEffect.h">
+      <Filter>01. Player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

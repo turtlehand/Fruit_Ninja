@@ -20,6 +20,7 @@
 #include "GuidedM.h"
 #include "DamageController.h"
 #include "ChargeEffect.h"
+#include "BulletEffect.h"
 
 
 CPlayer::CPlayer() :
@@ -154,7 +155,7 @@ bool CPlayer::Init()
 		ColliderLine->SetLineDir(0.f, 100.f, 0.f);
 		ColliderLine->SetDebugDraw(true);
 		ColliderLine->SetInheritScale(false);
-		ColliderLine->SetEnable(true);
+		ColliderLine->SetEnable(false);
 	}
 
 	auto	ColliderPolygon = m_ColliderPolygon.lock();
@@ -163,14 +164,23 @@ bool CPlayer::Init()
 	{
 		ColliderPolygon->SetCollisionProfile("Player");
 
-		ColliderPolygon->ChangeVertex(0, FVector3(-50.f, 50.f, 0.f));
+		//ColliderPolygon->ChangeVertex(0, FVector3(0.0f, 100.f, 0.f));
+		//ColliderPolygon->ChangeVertex(1, FVector3(95.11f, 30.90f, 0.f));
+		//ColliderPolygon->ChangeVertex(2, FVector3(58.78f, -80.90f, 0.f));
+		//ColliderPolygon->ChangeVertex(3, FVector3(-58.78f, -80.90f, 0.f));
+		//ColliderPolygon->AddPoint(FVector3(-95.11f, 30.90f, 0.f));
+
+		ColliderPolygon->ChangeVertex(0, FVector3(-50.0f, 50.f, 0.f));
 		ColliderPolygon->ChangeVertex(1, FVector3(50.f, 50.f, 0.f));
-		ColliderPolygon->ChangeVertex(2, FVector3(50.f, -50.f, 0.f));
-		ColliderPolygon->ChangeVertex(3, FVector3(-50.f, -50.f, 0.f));
+		ColliderPolygon->ChangeVertex(2, FVector3(-50.f, -50.f, 0.f));
+		ColliderPolygon->ChangeVertex(3, FVector3(50.f, -50.f, 0.f));
+		ColliderPolygon->AddPoint(FVector3(-50.f, 30.90f, 0.f));
 
 		ColliderPolygon->SetDebugDraw(true);
 		ColliderPolygon->SetInheritScale(false);
 		ColliderPolygon->SetEnable(true);
+
+		ColliderPolygon->SetCollisionFunction(this, &CPlayer::CollisionBegin);
 	}
 
 	auto Camera = m_CameraComponent.lock();
@@ -346,7 +356,9 @@ void CPlayer::MoveUp()
 	Anim->ChangeAnimation("PlayerWalk");
 
 	auto PolyCol = m_ColliderPolygon.lock();
-	PolyCol->ChangeVertex(0, FVector3(-50.f, 200.f, 0.f));
+	FVector3 Point = PolyCol->GetInfo().Points[0];
+	Point.y += 50 * CTimer::GetDeltaTime();
+	PolyCol->ChangeVertex(0, Point);
 }
 
 void CPlayer::MoveDown()
@@ -359,25 +371,38 @@ void CPlayer::MoveDown()
 	Anim->ChangeAnimation("PlayerWalk");
 
 	auto PolyCol = m_ColliderPolygon.lock();
-	PolyCol->ChangeVertex(0, FVector3(-50.f, 50.f, 0.f));
+	FVector3 Point = PolyCol->GetInfo().Points[0];
+	Point.y += -50 * CTimer::GetDeltaTime();
+	//PolyCol->ChangeVertex(0, Point);
 }
 
 void CPlayer::RotateLeft()
 {
+	//auto Mesh = m_MeshComponent.lock();
+	//auto Movement = m_Movement.lock();
+	//Movement->SetRotAxis(Mesh->GetAxis(EAxis::Z));
+	//Movement->SetRotSpeed(100);
 	auto Mesh = m_MeshComponent.lock();
 	auto Movement = m_Movement.lock();
-
-	Movement->SetRotAxis(Mesh->GetAxis(EAxis::Z));
-	Movement->SetRotSpeed(100);
+	auto Anim = m_Animation2DComponent.lock();
+	Movement->AddMove(-Mesh->GetAxis(EAxis::X));
+	Movement->SetSpeed(100);
+	Anim->ChangeAnimation("PlayerWalk");
 }
 
 void CPlayer::RotateRight()
 {
 	auto Mesh = m_MeshComponent.lock();
 	auto Movement = m_Movement.lock();
-
 	Movement->SetRotAxis(-Mesh->GetAxis(EAxis::Z));
 	Movement->SetRotSpeed(100);
+
+	//auto Mesh = m_MeshComponent.lock();
+	//auto Movement = m_Movement.lock();
+	//auto Anim = m_Animation2DComponent.lock();
+	//Movement->AddMove(Mesh->GetAxis(EAxis::X));
+	//Movement->SetSpeed(100);
+	//Anim->ChangeAnimation("PlayerWalk");
 }
 
 void CPlayer::Idle()
@@ -397,7 +422,7 @@ void CPlayer::Skill1Press()
 	_Effect->SetRelativePos(GetWorldPos());
 
 	auto PolyCol = m_ColliderPolygon.lock();
-	PolyCol->AddPoint(FVector3(-100.f, 0.f, 0.f));
+	//PolyCol->AddPoint(FVector3(-100.f, 0.f, 0.f));
 }
 
 void CPlayer::Skill1Hold()
@@ -432,4 +457,20 @@ void CPlayer::Skill1Release()
 	BulletTransform->SetRelativePos(GetWorldPos());
 	BulletTransform->AddRelativePos(GetAxis(EAxis::Y) * 100);
 	m_FireTime = 1.0f;
+}
+
+void CPlayer::CollisionBegin(const std::vector<FVector3>& _HitPoint, CCollider* _Dest)
+{
+
+	for (int i = 0; i < _HitPoint.size(); ++i)
+	{
+		auto World = CWorldManager::GetInst()->GetWorld().lock();
+		auto Effect = World->CreateGameObject<CBulletEffect>("Effect").lock();
+
+		Effect->SetRelativePos(_HitPoint[i]);
+	}
+}
+
+void CPlayer::CollisionEnd(CCollider* _Dest)
+{
 }
