@@ -80,6 +80,12 @@ struct FLine2DInfo
     FVector3 End;
 };
 
+struct FPolygon2DInfo
+{
+    FVector3 Center;
+    std::vector<FVector3> Points;
+};
+
 struct FCollisionChannel
 {
     std::string Name;

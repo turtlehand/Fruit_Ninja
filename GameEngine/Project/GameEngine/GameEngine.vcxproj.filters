@@ -174,9 +174,6 @@
     <ClInclude Include="Asset\Mesh\MeshManager.h">
       <Filter>03. Asset\01. Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>01. Core\03. Object</Filter>
-    </ClInclude>
     <ClInclude Include="Asset\Mesh\Mesh.h">
       <Filter>03. Asset\01. Mesh</Filter>
     </ClInclude>
@@ -306,9 +303,6 @@
     <ClInclude Include="World\WorldAssetManager.h">
       <Filter>02. World\02. Asset</Filter>
     </ClInclude>
-    <ClInclude Include="Asset\Asset.h">
-      <Filter>03. Asset</Filter>
-    </ClInclude>
     <ClInclude Include="World\Input.h">
       <Filter>02. World\03. Input</Filter>
     </ClInclude>
@@ -354,6 +348,15 @@
     <ClInclude Include="Component\ColliderLine2D.h">
       <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
     </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>01. Core\03. Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Asset\Asset.h">
+      <Filter>03. Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ColliderPolygon2D.h">
+      <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -379,9 +382,6 @@
     </ClCompile>
     <ClCompile Include="Asset\Mesh\MeshManager.cpp">
       <Filter>03. Asset\01. Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>01. Core\03. Object</Filter>
     </ClCompile>
     <ClCompile Include="Asset\Mesh\Mesh.cpp">
       <Filter>03. Asset\01. Mesh</Filter>
@@ -497,9 +497,6 @@
     <ClCompile Include="World\WorldAssetManager.cpp">
       <Filter>02. World\02. Asset</Filter>
     </ClCompile>
-    <ClCompile Include="Asset\Asset.cpp">
-      <Filter>03. Asset</Filter>
-    </ClCompile>
     <ClCompile Include="World\Input.cpp">
       <Filter>02. World\03. Input</Filter>
     </ClCompile>
@@ -543,6 +540,15 @@
       <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
     </ClCompile>
     <ClCompile Include="Component\ColliderLine2D.cpp">
+      <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>01. Core\03. Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset\Asset.cpp">
+      <Filter>03. Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ColliderPolygon2D.cpp">
       <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
     </ClCompile>
   </ItemGroup>

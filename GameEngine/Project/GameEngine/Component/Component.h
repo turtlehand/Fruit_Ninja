@@ -1,5 +1,5 @@
 #pragma once
-#include "Object.h"
+#include "../Object.h"
 
 enum class EComponentType : unsigned char
 {

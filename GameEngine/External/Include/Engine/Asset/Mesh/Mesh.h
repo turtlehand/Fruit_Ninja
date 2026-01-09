@@ -34,6 +34,13 @@ class CMesh :
 	public CAsset
 {
 protected:
+	friend class CMeshManager;
+	friend class CColliderPolygon2D;
+	CMesh();
+public:
+	virtual ~CMesh() override;
+
+protected:
 	std::string								m_Name;
 
 	FVertexBuffer							m_VB;			// Vertex
@@ -84,11 +91,8 @@ protected:
 	// _Data : 정보를 담은 임시 그릇
 	bool CreateBuffer(ComPtr<ID3D11Buffer>* _Buffer, D3D11_BIND_FLAG _Flag, void* _Data, int _Size, int _Count, D3D11_USAGE _Usage);
 
-protected:
-	friend class CMeshManager;
-	CMesh();
-public:
-	virtual ~CMesh() override;
+	bool ChangeVertexBuffer(void* _Data, int _Size, int _Count);
+	bool ChangeIndexBuffer(int _SlotIndex, void* _Data, int _Size, int _Count);
 
 
 };

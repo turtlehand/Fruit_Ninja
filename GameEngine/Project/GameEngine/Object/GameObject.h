@@ -1,6 +1,6 @@
 #pragma once
-#include "Object.h"
-#include "Component\SceneComponent.h"
+#include "../Object.h"
+#include "../Component/SceneComponent.h"
 #include "../Component/ObjectComponent.h"
 
 class CSceneComponent;

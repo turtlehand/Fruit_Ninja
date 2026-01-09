@@ -11,6 +11,7 @@
 #include "Engine/Component/ColliderBox2D.h"
 #include "Engine/Component/ColliderSphere2D.h"
 #include "Engine/Component/ColliderLine2D.h"
+#include "Engine/Component/ColliderPolygon2D.h"
 
 
 #include "Bullet.h"
@@ -62,6 +63,7 @@ bool CPlayer::Init()
 	m_ColliderBox = CreateComponent<CColliderBox2D>("Collider");
 	m_ColliderSphere = CreateComponent<CColliderSphere2D>("Collider");
 	m_ColliderLine = CreateComponent<CColliderLine2D>("LineCollider");
+	m_ColliderPolygon = CreateComponent<CColliderPolygon2D>("PolygonCollider");
 
 	m_DC.reset(new CDamageController(m_Self));
 
@@ -153,6 +155,22 @@ bool CPlayer::Init()
 		ColliderLine->SetDebugDraw(true);
 		ColliderLine->SetInheritScale(false);
 		ColliderLine->SetEnable(true);
+	}
+
+	auto	ColliderPolygon = m_ColliderPolygon.lock();
+
+	if (ColliderPolygon)
+	{
+		ColliderPolygon->SetCollisionProfile("Player");
+
+		ColliderPolygon->ChangeVertex(0, FVector3(-50.f, 50.f, 0.f));
+		ColliderPolygon->ChangeVertex(1, FVector3(50.f, 50.f, 0.f));
+		ColliderPolygon->ChangeVertex(2, FVector3(50.f, -50.f, 0.f));
+		ColliderPolygon->ChangeVertex(3, FVector3(-50.f, -50.f, 0.f));
+
+		ColliderPolygon->SetDebugDraw(true);
+		ColliderPolygon->SetInheritScale(false);
+		ColliderPolygon->SetEnable(true);
 	}
 
 	auto Camera = m_CameraComponent.lock();
@@ -326,6 +344,9 @@ void CPlayer::MoveUp()
 	Movement->AddMove(Mesh->GetAxis(EAxis::Y));
 	Movement->SetSpeed(100);
 	Anim->ChangeAnimation("PlayerWalk");
+
+	auto PolyCol = m_ColliderPolygon.lock();
+	PolyCol->ChangeVertex(0, FVector3(-50.f, 200.f, 0.f));
 }
 
 void CPlayer::MoveDown()
@@ -336,6 +357,9 @@ void CPlayer::MoveDown()
 	Movement->AddMove(-Mesh->GetAxis(EAxis::Y));
 	Movement->SetSpeed(100);
 	Anim->ChangeAnimation("PlayerWalk");
+
+	auto PolyCol = m_ColliderPolygon.lock();
+	PolyCol->ChangeVertex(0, FVector3(-50.f, 50.f, 0.f));
 }
 
 void CPlayer::RotateLeft()
@@ -371,6 +395,9 @@ void CPlayer::Skill1Press()
 	auto	_Effect = m_ChargeEffect.lock();
 
 	_Effect->SetRelativePos(GetWorldPos());
+
+	auto PolyCol = m_ColliderPolygon.lock();
+	PolyCol->AddPoint(FVector3(-100.f, 0.f, 0.f));
 }
 
 void CPlayer::Skill1Hold()

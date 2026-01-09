@@ -31,7 +31,8 @@ enum class EColliderType
 {
 	Box2D,
 	Line2D,
-	Sphere2D
+	Sphere2D,
+	Polygon2D,
 };
 
 namespace ECollisionChannel

@@ -10,6 +10,7 @@ class CRotationMovementComponent;
 class CColliderBox2D;
 class CColliderSphere2D;
 class CColliderLine2D;
+class CColliderPolygon2D;
 
 class CDamageController;
 
@@ -36,6 +37,7 @@ private:
     std::weak_ptr<CColliderBox2D>                       m_ColliderBox;
     std::weak_ptr<CColliderSphere2D>                    m_ColliderSphere;
     std::weak_ptr<CColliderLine2D>                      m_ColliderLine;
+    std::weak_ptr<CColliderPolygon2D>                   m_ColliderPolygon;
 
 
     std::shared_ptr<CDamageController>      m_DC;

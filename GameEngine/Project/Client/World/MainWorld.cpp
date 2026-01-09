@@ -29,17 +29,17 @@ bool CMainWorld::Init()
 	Player1->SetRelativeScale(100.f, 100.f);
 
 
-	std::weak_ptr<CMonsterSpawnPoint> SpawnPoint1 = CreateGameObject<CMonsterSpawnPoint>("SpawnPoint");
+	//std::weak_ptr<CMonsterSpawnPoint> SpawnPoint1 = CreateGameObject<CMonsterSpawnPoint>("SpawnPoint");
 
-	std::shared_ptr<CMonsterSpawnPoint> Point = SpawnPoint1.lock();
+	//std::shared_ptr<CMonsterSpawnPoint> Point = SpawnPoint1.lock();
 
-	if (Point)
-	{
-		Point->SetRelativePos(-400.f, -300.f);
-		Point->SetRelativeRotationZ(20.f);
-		Point->SetSpawnClass<CMonster>();
-		Point->SetSpawnTime(5.f);
-	}
+	//if (Point)
+	//{
+	//	Point->SetRelativePos(-400.f, -300.f);
+	//	Point->SetRelativeRotationZ(20.f);
+	//	Point->SetSpawnClass<CMonster>();
+	//	Point->SetSpawnTime(5.f);
+	//}
 
 	return true;
 }

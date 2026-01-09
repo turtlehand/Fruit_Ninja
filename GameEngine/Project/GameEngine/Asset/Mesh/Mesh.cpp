@@ -225,7 +225,9 @@ bool CMesh::CreateBuffer(ComPtr<ID3D11Buffer>* _Buffer, D3D11_BIND_FLAG _Flag, v
 	if (_Usage == D3D11_USAGE_DYNAMIC)
 		BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-	// CPU 읽기 / 쓰기 모두 가능.CPU는 사용 안한다.메모리를 확보하고 데이터를 저장해두는 용도로 주로 사용한다.
+	// CPU 읽기 / 쓰기 모두 가능.
+	// CPU는 사용 안한다.
+	// 메모리를 확보하고 데이터를 저장해두는 용도로 주로 사용한다.
 	else if (_Usage == D3D11_USAGE_STAGING)
 		BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
 
@@ -235,6 +237,42 @@ bool CMesh::CreateBuffer(ComPtr<ID3D11Buffer>* _Buffer, D3D11_BIND_FLAG _Flag, v
 
 	if (FAILED(CDevice::GetInst()->GetDevice()->CreateBuffer(&BufferDesc, &BufferData, _Buffer->GetAddressOf())))
 		return false;
+
+	return true;
+}
+
+bool CMesh::ChangeVertexBuffer(void* _Data, int _Size, int _Count)
+{
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	CDevice::GetInst()->GetContext()->Map(
+		m_VB.Buffer.Get(),
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mapped
+	);
+
+	memcpy(mapped.pData, _Data, _Size * _Count);
+
+	CDevice::GetInst()->GetContext()->Unmap(m_VB.Buffer.Get(), 0);
+
+	return true;
+}
+
+bool CMesh::ChangeIndexBuffer(int _SlotIndex, void* _Data, int _Size, int _Count)
+{
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	CDevice::GetInst()->GetContext()->Map(
+		m_MeshSlot[_SlotIndex]->IndexBuffer.Buffer.Get(),
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mapped
+	);
+
+	memcpy(mapped.pData, _Data, _Size * _Count);
+
+	CDevice::GetInst()->GetContext()->Unmap(m_MeshSlot[_SlotIndex]->IndexBuffer.Buffer.Get(), 0);
 
 	return true;
 }
