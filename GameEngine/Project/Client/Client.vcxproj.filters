@@ -31,6 +31,9 @@
     <Filter Include="06. Setting">
       <UniqueIdentifier>{96f1ab81-1f6a-478c-9e61-e38766f5be29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{4dd3e18c-00fd-4c5e-871c-03d5df54a0ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -77,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="Player\BulletEffect.cpp">
       <Filter>01. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Fruit\Fruit.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="Player\BulletEffect.h">
       <Filter>01. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Fruit\Fruit.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

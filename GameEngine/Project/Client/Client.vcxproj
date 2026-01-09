@@ -26,6 +26,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="DamageController.cpp" />
+    <ClCompile Include="Fruit\Fruit.cpp" />
     <ClCompile Include="GlobalSetting.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Missile.cpp" />
@@ -55,6 +56,7 @@
     </ClInclude>
     <ClInclude Include="DamageController.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Fruit\Fruit.h" />
     <ClInclude Include="GlobalSetting.h" />
     <ClInclude Include="Missile.h" />
     <ClInclude Include="Monster\Monster.h" />
