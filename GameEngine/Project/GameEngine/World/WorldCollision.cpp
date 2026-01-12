@@ -14,8 +14,7 @@ CWorldCollision::~CWorldCollision()
 {
 }
 
-void CWorldCollision::AddCollider(
-	const std::weak_ptr<class CCollider>& _Collider)
+void CWorldCollision::AddCollider(const std::weak_ptr<CCollider>& _Collider)
 {
 	m_ColliderList.push_back(_Collider);
 }
@@ -73,7 +72,7 @@ void CWorldCollision::Update(double _DeltaTime)
 		}
 
 		// 비활성화 상태
-		else if (!SrcCollider->GetEnable())
+		else if (!SrcCollider->GetEnable() || !SrcCollider->GetGameObjectEnable())
 		{
 			++iter;
 			continue;
@@ -119,7 +118,7 @@ void CWorldCollision::Update(double _DeltaTime)
 			}
 
 			// 비활성화 상태
-			else if (!DestCollider->GetEnable())
+			else if (!DestCollider->GetEnable() ||!DestCollider->GetGameObjectEnable())
 			{
 				++iter1;
 				continue;

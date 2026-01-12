@@ -37,6 +37,7 @@ public:
     int GetRenderLayer() { return m_RenderLayer; }
 
 public:
+    virtual void SetEnable(bool _Enable) override;
     virtual void SetSelf(std::weak_ptr<CComponent> _Self) override;
     virtual void SetWorld(std::weak_ptr<CWorld> _World) override;
     virtual void SetOwner(std::weak_ptr<CGameObject> _Owner) override;
@@ -50,6 +51,9 @@ public:
     virtual void Destroy() override;
 protected:
     virtual CSceneComponent* Clone() const;
+
+protected:
+    virtual void GameObjectEnable(bool _Enable) override;
 
 protected :
     bool        m_InheritScale;        // true 시 부모의 Scale의 영향을 받는다.

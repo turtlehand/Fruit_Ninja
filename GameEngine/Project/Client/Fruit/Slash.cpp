@@ -38,7 +38,7 @@ bool CSlash::Init()
 
 	if (ColliderLine)
 	{
-		ColliderLine->SetCollisionProfile("Fruit");
+		ColliderLine->SetCollisionProfile("Slash");
 
 		ColliderLine->SetLineDir(FVector3::Axis[EAxis::Y]);
 		ColliderLine->SetLineDistance(200.f);
@@ -60,10 +60,10 @@ bool CSlash::Init()
 
 	auto	Input = World->GetInput().lock();
 
-	Input->AddBindFunction<CSlash>("MoveUp", 'W', EInputType::Hold, this, &CSlash::MoveUp);
-	Input->AddBindFunction<CSlash>("MoveDown", 'S', EInputType::Hold, this, &CSlash::MoveDown);
-	Input->AddBindFunction<CSlash>("RotateLeft", 'A', EInputType::Hold, this, &CSlash::RotateLeft);
-	Input->AddBindFunction<CSlash>("RotateRight", 'D', EInputType::Hold, this, &CSlash::RotateRight);
+	//Input->AddBindFunction<CSlash>("MoveUp", 'W', EInputType::Hold, this, &CSlash::MoveUp);
+	//Input->AddBindFunction<CSlash>("MoveDown", 'S', EInputType::Hold, this, &CSlash::MoveDown);
+	//Input->AddBindFunction<CSlash>("RotateLeft", 'A', EInputType::Hold, this, &CSlash::RotateLeft);
+	//Input->AddBindFunction<CSlash>("RotateRight", 'D', EInputType::Hold, this, &CSlash::RotateRight);
 
 	return true;
 }

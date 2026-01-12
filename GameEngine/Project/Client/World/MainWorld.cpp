@@ -66,9 +66,9 @@ bool CMainWorld::Init()
 	WFruit->SetRelativeScale(100.f, 100.f);
 	WFruit->SetRelativePos(0.f, 0.f);
 
-	std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");
-	auto WSlash = Slash.lock();
-	WSlash->SetRelativePos(0.f, -100.f);
+	//std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");
+	//auto WSlash = Slash.lock();
+	//WSlash->SetRelativePos(0.f, -100.f);
 
 	std::weak_ptr<CSlashManager> SlashMgr = CreateGameObject<CSlashManager>("Test SlashManager");
 	auto SSlashMgr = SlashMgr.lock();

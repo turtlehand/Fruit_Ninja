@@ -3,6 +3,7 @@
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "../Component/SceneComponent.h"
+#include "../Object/GameObject.h"
 
 // y축이 작을수록 먼저 그려진다.
 // y축이 클수록 나중에 그려진다.
@@ -89,7 +90,7 @@ void CRenderManager::Render()
 			auto _Com = (*Com).lock();
 
 			// 비활성화 상태라면
-			if (!_Com->GetEnable())
+			if (!_Com->GetEnable() || !_Com->GetGameObjectEnable())
 			{
 				continue;
 			}

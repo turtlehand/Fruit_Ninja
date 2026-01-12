@@ -48,21 +48,15 @@ CCollider::CCollider(CCollider&& _Ref) noexcept :
 
 CCollider::~CCollider()
 {
-	// 파괴될 때 자신과 충돌 중인 대상에서 자신을 삭제해준다.
-	auto	iter = m_CollisionObjectMap.begin();
-	auto	iterEnd = m_CollisionObjectMap.end();
+	Disable();
+}
 
-	for (; iter != iterEnd; ++iter)
-	{
-		if (iter->second.expired())
-			continue;
-
-		auto	Dest = iter->second.lock();
-
-		Dest->EraseCollisionObject(this);
-		//CallCollisionEnd(Dest.get());
-		//Dest->CallCollisionEnd(this);
-	}
+void CCollider::SetEnable(bool _Enable)
+{
+	CSceneComponent::SetEnable(_Enable);
+	if (m_Enable)
+		return;
+	Disable();
 }
 
 void CCollider::SetDebugDraw(bool _Draw)
@@ -214,6 +208,14 @@ void CCollider::EraseCollisionObject(CCollider* _Collider)
 }
 
 
+void CCollider::GameObjectEnable(bool _Enable)
+{
+	CSceneComponent::GameObjectEnable(_Enable);
+
+	if (!_Enable)
+		Disable();
+}
+
 void CCollider::CallCollisionBegin(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider)
 {
 	auto Collider = _Collider.lock();
@@ -249,4 +251,23 @@ void CCollider::CallCollisionEnd(std::weak_ptr<CCollider>& _Collider)
 
 	if (m_CollisionEndFunc)
 		m_CollisionEndFunc(Collider.get());
+}
+
+void CCollider::Disable()
+{
+	// 파괴될 때 자신과 충돌 중인 대상에서 자신을 삭제해준다.
+	auto	iter = m_CollisionObjectMap.begin();
+	auto	iterEnd = m_CollisionObjectMap.end();
+
+	for (; iter != iterEnd; ++iter)
+	{
+		if (iter->second.expired())
+			continue;
+
+		auto	Dest = iter->second.lock();
+
+		Dest->EraseCollisionObject(this);
+		//CallCollisionEnd(Dest.get());
+		//Dest->CallCollisionEnd(this);
+	}
 }

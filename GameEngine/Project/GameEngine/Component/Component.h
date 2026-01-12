@@ -29,18 +29,20 @@ protected:
     std::weak_ptr<CComponent>       m_Self;
     std::string                     m_Name;
     bool                            m_Enable;
+    bool                            m_GameObjectEnable;
     bool                            m_Alive;
     EComponentType                  m_ComponentType;
 
 public:
     const std::string GetName() const { return m_Name; }
     bool GetEnable() const { return m_Enable; }
+    bool GetGameObjectEnable() const { return m_GameObjectEnable; }
     bool GetAlive() const { return m_Alive; }
     std::weak_ptr<CWorld> GetWorld() { return m_World; }
     std::weak_ptr<CGameObject> GetOwner() { return m_Owner; }
     EComponentType GetComponentType() const { return m_ComponentType; }
 
-    void SetEnable(bool _Enable) { m_Enable = _Enable; }
+    virtual void SetEnable(bool _Enable) { m_Enable = _Enable; }
     virtual void SetSelf(std::weak_ptr<CComponent> _Self) { m_Self = _Self; }
     virtual void SetWorld(std::weak_ptr<CWorld> _World) { m_World = _World; }
     virtual void SetOwner(std::weak_ptr<CGameObject> _Owner) { m_Owner = _Owner; }
@@ -63,5 +65,7 @@ public:
     {
         return std::dynamic_pointer_cast<T>(m_Self.lock());
     }
+protected:
+    virtual void GameObjectEnable(bool _Enable) { m_GameObjectEnable = _Enable; };
 };
 

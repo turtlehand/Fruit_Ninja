@@ -33,7 +33,7 @@ public:
     bool GetAlive() const { return m_Alive; }
     std::weak_ptr<CSceneComponent> GetRootComponent() const{ return m_SceneComponent; }
 
-    bool SetEnble(bool _Enable) { m_Enable = _Enable; }
+    void SetEnble(bool _Enable);
     void SetSelf(std::weak_ptr<CGameObject> _Self);
     void SetWorld(std::weak_ptr<CWorld> _World);
     void SetName(const std::string& _Name);

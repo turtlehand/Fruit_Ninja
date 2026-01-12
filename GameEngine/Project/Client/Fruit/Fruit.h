@@ -37,6 +37,6 @@ private:
 
     void CollisionSlash();
 
-
+    void CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest);
 };
 

@@ -98,6 +98,17 @@ CSceneComponent::~CSceneComponent()
 {
 }
 
+void CSceneComponent::SetEnable(bool _Enable)
+{
+	m_Enable = _Enable;
+
+	size_t Size = m_ChildList.size();
+	for (size_t i = 0; i < Size; ++i)
+	{
+		m_ChildList[i]->SetEnable(_Enable);
+	}
+}
+
 void CSceneComponent::SetSelf(std::weak_ptr<CComponent> _Self)
 {
 	m_Self = _Self;
@@ -210,6 +221,21 @@ void CSceneComponent::Render()
 CSceneComponent* CSceneComponent::Clone()	const
 {
 	return new CSceneComponent(*this);
+}
+
+void CSceneComponent::GameObjectEnable(bool _Enable)
+{
+	CComponent::GameObjectEnable(_Enable);
+
+	size_t	Size = m_ChildList.size();
+
+	for (size_t i = 0; i < Size; ++i)
+	{
+		auto Child = m_ChildList[i].get();
+
+		if (Child)
+			Child->GameObjectEnable(_Enable);
+	}
 }
 
 void CSceneComponent::Destroy()

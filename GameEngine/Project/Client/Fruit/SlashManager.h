@@ -19,6 +19,8 @@ private:
     //std::weak_ptr<class CCameraComponent>               m_CameraC;
     std::weak_ptr<class CMeshComponent>                 m_SlashSimul;
     FLine2DInfo                                         m_Line2DInfo;
+    std::weak_ptr<class CSlash>                         m_Slash;
+    bool                                                m_SlashTick;
 
 public:
     virtual bool Init() override;

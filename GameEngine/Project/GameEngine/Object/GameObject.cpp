@@ -37,6 +37,23 @@ CGameObject::~CGameObject()
 {
 }
 
+void CGameObject::SetEnble(bool _Enable)
+{
+	m_Enable = _Enable;
+
+	// GameObject가 비활성되었다가 자식 컴포넌트에게 알려준다.
+	if (m_SceneComponent.get())
+		m_SceneComponent->GameObjectEnable(_Enable);
+
+	auto	iter = m_ObjectComponentList.begin();
+	auto	iterEnd = m_ObjectComponentList.end();
+
+	for (; iter != iterEnd; ++iter)
+	{
+		(*iter)->GameObjectEnable(_Enable);
+	}
+}
+
 void CGameObject::SetSelf(std::weak_ptr<CGameObject> _Self)
 {
 	m_Self = _Self;
@@ -132,6 +149,7 @@ void CGameObject::Render()
 	if (Root)
 		Root->Render();
 }
+
 CGameObject* CGameObject::Clone()
 {
 	return new CGameObject(*this);

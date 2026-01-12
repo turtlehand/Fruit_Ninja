@@ -41,6 +41,7 @@ public:
 	bool GetDebugDraw() { return m_DebugDraw; }
 	FCollisionProfile* GetCollisionProfile() const { return m_Profile; }
 public:
+	void virtual SetEnable(bool _Enable) override;
 	void virtual SetDebugDraw(bool _Draw);
 	void SetCollisionProfile(const std::string& _Name);
 	bool CheckCollisionObject(CCollider* _Collider);
@@ -55,10 +56,16 @@ public:
 protected:
 	virtual CCollider* Clone() const = 0;
 
+protected:
+	virtual void GameObjectEnable(bool _Enable) override;
+
 public:
 	void CallCollisionBegin(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider);
 	void CallCollision(const std::vector<FVector3>& _HitPoint, std::weak_ptr<CCollider>& _Collider);
 	void CallCollisionEnd(std::weak_ptr<CCollider>& _Collider);
+
+private:
+	void Disable();
 
 public:
 	virtual bool Collision(std::vector<FVector3>& _HitPoint, std::shared_ptr<CCollider> _Dest) = 0;

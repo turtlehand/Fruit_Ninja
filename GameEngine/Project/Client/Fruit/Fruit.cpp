@@ -75,3 +75,8 @@ void CFruit::CollisionSlash()
 {
 
 }
+
+void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest)
+{
+	int a = 0;
+}
