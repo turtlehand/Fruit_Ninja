@@ -1,12 +1,16 @@
 #include "pch.h"
 #include "MainWorld.h"
+#include "Fruit/Fruit.h"
 #include "Player/Player.h"
-#include "Monster/Monster.h"
-#include "Monster/MonsterSpawnPoint.h"
+#include "Fruit/Slash.h"
+#include "Fruit/SlashManager.h"
+
+#include "Component/CameraComponent.h"
 
 #include "Asset/AssetManager.h"
 #include "Asset/Animation2D/Animation2DManager.h"
 #include "CollisionInfoManager.h"
+#include "Engine/Device.h"
 
 CMainWorld::CMainWorld()
 {
@@ -21,25 +25,54 @@ bool CMainWorld::Init()
 	if (!CWorld::Init())
 		return false;
 
+	LoadTexture2D();
 	LoadAnimation2D();
 
+	std::weak_ptr<CGameObject> Camera = CreateGameObject<CGameObject>("Camera");
+	auto SCamera = Camera.lock();
 
-	std::weak_ptr<CPlayer> Player = CreateGameObject<CPlayer>("Player");
-	auto Player1 = Player.lock();
-	Player1->SetRelativeScale(100.f, 100.f);
-
-
-	std::weak_ptr<CMonsterSpawnPoint> SpawnPoint1 = CreateGameObject<CMonsterSpawnPoint>("SpawnPoint");
-
-	std::shared_ptr<CMonsterSpawnPoint> Point = SpawnPoint1.lock();
-
-	if (Point)
+	auto WCameraC = SCamera->CreateComponent<CCameraComponent>("Camera");
+	auto SCameraC = WCameraC.lock();
+	if (SCameraC)
 	{
-		Point->SetRelativePos(-400.f, -300.f);
-		Point->SetRelativeRotationZ(20.f);
-		Point->SetSpawnClass<CMonster>();
-		Point->SetSpawnTime(5.f);
+		const FResolution& RS = CDevice::GetInst()->GetResolution();
+		//Camera->SetRelativePos(0.f, 0.f, -5.f);
+		SCameraC->SetProjection(ECameraProjectionType::Orthographic, 90.f, (float)RS.Width, (float)RS.Height, 1000.f);
+
+		SCameraC->SetRelativeScale(1.f, 1.f, 1.f);
+		SCameraC->SetRelativePos(0.f, 0.f, -5.f);
 	}
+
+	//std::weak_ptr<CPlayer> Player = CreateGameObject<CPlayer>("Player");
+	//auto Player1 = Player.lock();
+	//Player1->SetRelativeScale(100.f, 100.f);
+	//Player1->SetRelativePos(300.f, 0.f);
+
+	//std::weak_ptr<CMonsterSpawnPoint> SpawnPoint1 = CreateGameObject<CMonsterSpawnPoint>("SpawnPoint");
+
+	//std::shared_ptr<CMonsterSpawnPoint> Point = SpawnPoint1.lock();
+
+	//if (Point)
+	//{
+	//	Point->SetRelativePos(-400.f, -300.f);
+	//	Point->SetRelativeRotationZ(20.f);
+	//	Point->SetSpawnClass<CMonster>();
+	//	Point->SetSpawnTime(5.f);
+	//}
+
+	
+	std::weak_ptr<CFruit> Fruit = CreateGameObject<CFruit>("Test Fruit");
+	auto WFruit = Fruit.lock();
+	WFruit->SetRelativeScale(100.f, 100.f);
+	WFruit->SetRelativePos(0.f, 0.f);
+
+	std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");
+	auto WSlash = Slash.lock();
+	WSlash->SetRelativePos(0.f, -100.f);
+
+	std::weak_ptr<CSlashManager> SlashMgr = CreateGameObject<CSlashManager>("Test SlashManager");
+	auto SSlashMgr = SlashMgr.lock();
+
 
 	return true;
 }
@@ -182,4 +215,9 @@ void CMainWorld::LoadAnimation2D()
 	m_WorldAssetManager->AddFrame("Charge", 192.f, 192.f, 64.f, 64.f);
 	m_WorldAssetManager->AddFrame("Charge", 256.f, 192.f, 64.f, 64.f);
 
+}
+
+void CMainWorld::LoadTexture2D()
+{
+	m_WorldAssetManager->LoadTexture("Apple", L"Apple.png");
 }

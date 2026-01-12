@@ -14,20 +14,15 @@ CGlobalSetting::~CGlobalSetting()
 
 bool CGlobalSetting::Init()
 {
-	CCollisionInfoManager::GetInst()->CreateChannel("PlayerAttack");
-	CCollisionInfoManager::GetInst()->CreateChannel("MonsterAttack");
+	CCollisionInfoManager::GetInst()->CreateChannel("Fruit");
+	CCollisionInfoManager::GetInst()->CreateChannel("Slash");
 
-	CCollisionInfoManager::GetInst()->CreateProfile("PlayerAttack",
-		"PlayerAttack", true);
-	CCollisionInfoManager::GetInst()->CreateProfile("MonsterAttack",
-		"MonsterAttack", true);
+	CCollisionInfoManager::GetInst()->CreateProfile("Fruit", "Fruit", true);
+	CCollisionInfoManager::GetInst()->CreateProfile("Slash", "Slash", true);
 
-	CCollisionInfoManager::GetInst()->SetProfileInteraction("PlayerAttack", "PlayerAttack", ECollisionInteraction::Ignore);
-	CCollisionInfoManager::GetInst()->SetProfileInteraction("PlayerAttack", "Player", ECollisionInteraction::Ignore);
-	CCollisionInfoManager::GetInst()->SetProfileInteraction("PlayerAttack", "MonsterAttack", ECollisionInteraction::Ignore);
-
-	CCollisionInfoManager::GetInst()->SetProfileInteraction("MonsterAttack", "Monster", ECollisionInteraction::Ignore);
-	CCollisionInfoManager::GetInst()->SetProfileInteraction("MonsterAttack", "MonsterAttack", ECollisionInteraction::Ignore);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("Fruit", "Fruit", ECollisionInteraction::Collision);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("Fruit", "Slash", ECollisionInteraction::Collision);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("Slash", "Slash", ECollisionInteraction::Ignore);
 
 	return true;
 }

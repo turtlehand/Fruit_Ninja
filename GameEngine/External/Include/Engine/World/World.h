@@ -26,6 +26,7 @@ public:
 	std::weak_ptr<CWorldAssetManager> GetWorldAssetManager() const { return m_WorldAssetManager; }
 	std::weak_ptr<CInput> GetInput() const { return m_Input; }
 	std::weak_ptr<CWorldCollision> GetCollision() const { return m_Collision; }
+
 public:
 	virtual bool Init();
 	virtual void Update(double _DeltaTime);
@@ -33,7 +34,7 @@ public:
 	//virtual void Render();
 private:
 	void Begin();
-
+	void MouseGamePos();
 public:
 	CWorld();
 	virtual ~CWorld();

@@ -37,6 +37,9 @@ void CWorldCollision::Update(double _DeltaTime)
 		m_IntervalTime -= m_Interval;
 	}
 
+	if (m_ColliderList.empty())
+		return;
+
 	auto iter = m_ColliderList.begin();
 	auto iterLast = m_ColliderList.end();
 	--iterLast;

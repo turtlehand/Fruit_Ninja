@@ -34,6 +34,9 @@
     <Filter Include="Object">
       <UniqueIdentifier>{4dd3e18c-00fd-4c5e-871c-03d5df54a0ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="07. Fruit">
+      <UniqueIdentifier>{4e55fa58-d0e9-4b31-92c6-94c0539a8c15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -82,7 +85,13 @@
       <Filter>01. Player</Filter>
     </ClCompile>
     <ClCompile Include="Fruit\Fruit.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>07. Fruit</Filter>
+    </ClCompile>
+    <ClCompile Include="Fruit\Slash.cpp">
+      <Filter>07. Fruit</Filter>
+    </ClCompile>
+    <ClCompile Include="Fruit\SlashManager.cpp">
+      <Filter>07. Fruit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -138,7 +147,13 @@
       <Filter>01. Player</Filter>
     </ClInclude>
     <ClInclude Include="Fruit\Fruit.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>07. Fruit</Filter>
+    </ClInclude>
+    <ClInclude Include="Fruit\Slash.h">
+      <Filter>07. Fruit</Filter>
+    </ClInclude>
+    <ClInclude Include="Fruit\SlashManager.h">
+      <Filter>07. Fruit</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

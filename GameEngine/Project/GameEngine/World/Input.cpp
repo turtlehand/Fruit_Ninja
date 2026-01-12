@@ -3,6 +3,10 @@
 #include "Engine.h"
 #include "Device.h"
 
+#include "World/World.h"
+#include "CameraManager.h"
+#include "Component/CameraComponent.h"
+
 CInput::CInput() :
 	m_InputType(EInputSystemType::DInput),
 	m_hInst(nullptr),
@@ -173,8 +177,32 @@ void CInput::UpdateMouse()
 				m_Mouse->GetDeviceState(sizeof(m_MouseState), (LPVOID)&m_MouseState);
 			}
 		}
-
 	}
+
+	POINT mousePos; // x, y 좌표를 담을 구조체
+
+	// 1. 모니터 전체 기준 마우스 좌표 가져오기
+	if (GetCursorPos(&mousePos)) {
+		// 2. 게임 창(Window) 기준 좌표로 변환하기
+		// hWnd는 게임 창의 핸들입니다.
+		ScreenToClient(m_hWnd, &mousePos);
+
+		m_MousePos.x = mousePos.x;
+		m_MousePos.y = mousePos.y;
+	}
+
+
+	m_MouseGamePos = m_MousePos;
+
+	std::shared_ptr<CCameraComponent> MainCamera = m_World.lock()->GetCameraManager().lock()->GetMainCamera().lock();
+
+	m_MouseGamePos.x = m_MouseGamePos.x - MainCamera->GetWidth() / 2;
+	m_MouseGamePos.y = -m_MouseGamePos.y + MainCamera->GetHeight() / 2;
+
+	char	Test[256] = {};
+	sprintf_s(Test, "MousePos : %f, %f\n", m_MouseGamePos.x, m_MouseGamePos.y);
+	OutputDebugStringA(Test);
+
 }
 
 void CInput::UpdateInput(double _DeltaTime)

@@ -399,10 +399,10 @@ bool CCollision::PointOnLine2D(const FVector3& _LineStart, const FVector3& _Line
 	// 점이 선분의 Min, Max 범위 안에 없으면 우선 선분에 포함되지 않음을 의미한다.
 	float MinX = _LineStart.x < _LineEnd.x ? _LineStart.x : _LineEnd.x;
 	float MaxX = _LineStart.x > _LineEnd.x ? _LineStart.x : _LineEnd.x;
-	float MinY = _LineStart.y < _LineEnd.y ? _LineStart.x : _LineEnd.x;
-	float MaxY = _LineStart.y > _LineEnd.y ? _LineStart.x : _LineEnd.x;
+	float MinY = _LineStart.y < _LineEnd.y ? _LineStart.y : _LineEnd.y;
+	float MaxY = _LineStart.y > _LineEnd.y ? _LineStart.y : _LineEnd.y;
 
-	if (_Point.x < MinX || MaxX < _Point.x || _Point.y < +MinY || MaxY < _Point.y)
+	if (_Point.x < MinX || MaxX < _Point.x || _Point.y < MinY || MaxY < _Point.y)
 		return false;
 
 	// _Point - _LineStart 로 벡터를 만들고

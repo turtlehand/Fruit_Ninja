@@ -13,5 +13,6 @@ public:
 
 private:
     void LoadAnimation2D();
+    void LoadTexture2D();
 };
 

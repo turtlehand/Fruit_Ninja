@@ -75,6 +75,8 @@ private:
 	unsigned char			m_KeyState[256];
 	DIMOUSESTATE			m_MouseState;
 
+	std::weak_ptr<class CWorld> m_World;
+
 private:
 	std::unordered_map<unsigned char, FKeyState*> m_KeyStateMap;				// 필요한 키만 추가한다.
 	std::unordered_map<std::string, std::unique_ptr<FBindKey>> m_BindKeyMap;	// 키에 함수를 추가한다.
@@ -84,6 +86,9 @@ private:
 	bool m_ShiftState[EInputType::End] = {};
 	
 	bool m_MouseButton[EMouseType::End][EInputType::End] = {};
+
+	FVector2 m_MousePos;
+	FVector2 m_MouseGamePos;
 
 public:
 	bool Init();
@@ -103,6 +108,9 @@ public:
 	void SetKeyCtrl(const std::string& _Name, bool _Ctrl);
 	void SetKeyAlt(const std::string& _Name, bool _Alt);
 	void SetKeyShift(const std::string& _Name, bool _Shift);
+
+	const FVector2& GetMouseCursorPos() { return m_MousePos; }
+	const FVector2& GetMouseGamePos() { return m_MouseGamePos; }
 private:
 	FKeyState* FindKeyState(unsigned char _Key);
 	FBindKey* FindBindKey(const std::string& _Name);

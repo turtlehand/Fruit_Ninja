@@ -161,6 +161,16 @@ bool CMeshManager::Init()
 		2, D3D11_USAGE_IMMUTABLE, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP))
 		return false;
 
+	unsigned short	LineUpIdx[2] = { 0, 1 };
+
+
+	if (!CreateMesh("Mesh_LineUP2D_Material", LineUp,
+		sizeof(FVector3),
+		2, D3D11_USAGE_IMMUTABLE, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP,
+		LineUpIdx, 2, 6, DXGI_FORMAT_R16_UINT,
+		D3D11_USAGE_IMMUTABLE))
+		return false;
+
 	FVector3	LineRight[2] =
 	{
 		FVector3(0.f, 0.f, 0.f),

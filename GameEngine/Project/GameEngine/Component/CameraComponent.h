@@ -36,6 +36,8 @@ public:
 
     void SetProjection(ECameraProjectionType _Type, float _ViewAngle, float _Width, float _Height, float _ViewDistance);
 
+    float GetWidth() { return m_Width; }
+    float GetHeight() { return m_Height; }
 
 public:
     virtual bool Init() override;

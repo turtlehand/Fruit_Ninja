@@ -118,10 +118,10 @@ bool CColliderPolygon2D::Init()
 {
     CCollider::Init();
 
-    m_Polygon2DInfo.Points.push_back(FVector3(-0.5f, 0.5f, 0.f));
-    m_Polygon2DInfo.Points.push_back(FVector3(0.5f, 0.5f, 0.f));
-    m_Polygon2DInfo.Points.push_back(FVector3(0.5f, -0.5f, 0.f));
-    m_Polygon2DInfo.Points.push_back(FVector3(-0.5f, -0.5f, 0.f));
+    //m_Polygon2DInfo.Points.push_back(FVector3(-0.5f, 0.5f, 0.f));
+    //m_Polygon2DInfo.Points.push_back(FVector3(0.5f, 0.5f, 0.f));
+    //m_Polygon2DInfo.Points.push_back(FVector3(0.5f, -0.5f, 0.f));
+    //m_Polygon2DInfo.Points.push_back(FVector3(-0.5f, -0.5f, 0.f));
 
     m_Mesh = CreateMesh();
 

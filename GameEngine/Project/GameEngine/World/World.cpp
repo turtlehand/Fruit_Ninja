@@ -4,6 +4,8 @@
 #include "World/CameraManager.h"
 #include "WorldCollision.h"
 
+#include "Component/CameraComponent.h"
+
 CWorld::CWorld()
 {
 }
@@ -28,6 +30,7 @@ bool CWorld::Init()
 
 	if (!m_Input->Init())
 		return false;
+	m_Input->m_World = m_Self;
 
 	m_Collision.reset(new CWorldCollision);
 
