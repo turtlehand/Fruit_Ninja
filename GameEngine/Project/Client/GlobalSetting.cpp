@@ -20,7 +20,7 @@ bool CGlobalSetting::Init()
 	CCollisionInfoManager::GetInst()->CreateProfile("Fruit", "Fruit", true);
 	CCollisionInfoManager::GetInst()->CreateProfile("Slash", "Slash", true);
 
-	CCollisionInfoManager::GetInst()->SetProfileInteraction("Fruit", "Fruit", ECollisionInteraction::Collision);
+	CCollisionInfoManager::GetInst()->SetProfileInteraction("Fruit", "Fruit", ECollisionInteraction::Ignore);
 	CCollisionInfoManager::GetInst()->SetProfileInteraction("Fruit", "Slash", ECollisionInteraction::Collision);
 	CCollisionInfoManager::GetInst()->SetProfileInteraction("Slash", "Slash", ECollisionInteraction::Ignore);
 

@@ -114,6 +114,11 @@ public:
         return m_WorldPos;
     }
 
+    const FMatrix& GetWorldMatrix() const
+    {
+        return m_WorldMatrix;
+    }
+
 public:
     void AddChild(std::weak_ptr<CSceneComponent> _Child);
     void UpdateTransform();

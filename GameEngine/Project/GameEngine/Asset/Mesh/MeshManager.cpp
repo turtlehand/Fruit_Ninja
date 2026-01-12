@@ -161,13 +161,18 @@ bool CMeshManager::Init()
 		2, D3D11_USAGE_IMMUTABLE, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP))
 		return false;
 
+	FVertexColor LineUpColor[2] =
+	{
+		FVertexColor(0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f),
+		FVertexColor(0.f, 1.f, 0.f, 1.f, 1.f, 1.f, 1.f),
+	};
+
 	unsigned short	LineUpIdx[2] = { 0, 1 };
 
-
-	if (!CreateMesh("Mesh_LineUP2D_Material", LineUp,
-		sizeof(FVector3),
+	if (!CreateMesh("Mesh_LineUP2D_Material", LineUpColor,
+		sizeof(FVertexColor),
 		2, D3D11_USAGE_IMMUTABLE, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP,
-		LineUpIdx, 2, 6, DXGI_FORMAT_R16_UINT,
+		LineUpIdx, sizeof(unsigned short), 2, DXGI_FORMAT_R16_UINT,
 		D3D11_USAGE_IMMUTABLE))
 		return false;
 

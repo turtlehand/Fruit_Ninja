@@ -25,12 +25,17 @@ public:
     virtual ~CFruit();
 
 private:
+    bool                                                m_IsBegin;
     std::weak_ptr<CMeshComponent>                       m_MeshComponent;
     std::weak_ptr<CColliderPolygon2D>                   m_PolygonCollider;
 
 public:
     virtual bool Init() override;
+    virtual void Begin() override;
     virtual void Update(double _DeltaTime) override;
+
+public:
+    void CreatePentagon();
 
 private:
     void SplitCollider();

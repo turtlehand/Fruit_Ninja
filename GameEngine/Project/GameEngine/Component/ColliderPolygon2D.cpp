@@ -48,21 +48,21 @@ CColliderPolygon2D::~CColliderPolygon2D()
 void CColliderPolygon2D::AddPoint(const FVector3& _Point)
 {
     // 더 이상 추가 불가능
-    if (m_MaxPoint == m_Polygon2DInfo.Points.size())
+    if (m_MaxPoint == m_Polygon2DInfo.LocalPoints.size())
     {
         assert(false);
         return;
     }
 
-    m_Polygon2DInfo.Points.push_back(_Point);
+    m_Polygon2DInfo.LocalPoints.push_back(_Point);
 
     // 속이 빈 다각형
     std::vector<FVector3> CenterFrame(m_MaxPoint, FVector3::Zero);
     std::vector<unsigned short> CenterFrameIdx(m_MaxPoint + 1, 0);
 
-    for (int i = 0; i < m_Polygon2DInfo.Points.size(); ++i)
+    for (int i = 0; i < m_Polygon2DInfo.LocalPoints.size(); ++i)
     {
-        CenterFrame[i] = m_Polygon2DInfo.Points[i];
+        CenterFrame[i] = m_Polygon2DInfo.LocalPoints[i];
         CenterFrameIdx[i] = i;
     }
 
@@ -84,15 +84,15 @@ void CColliderPolygon2D::ChangeVertex(int _Index, const FVector3& _Point)
     }
 
     // Info를 변경한다.
-    m_Polygon2DInfo.Points[_Index] = _Point;
+    m_Polygon2DInfo.LocalPoints[_Index] = _Point;
 
     // 속이 빈 다각형
     // 정점을 Info로 변경한다.
     std::vector<FVector3> CenterFrame(m_MaxPoint, FVector3::Zero);
 
-    for (int i = 0; i < m_Polygon2DInfo.Points.size(); ++i)
+    for (int i = 0; i < m_Polygon2DInfo.LocalPoints.size(); ++i)
     {
-        CenterFrame[i] = m_Polygon2DInfo.Points[i];
+        CenterFrame[i] = m_Polygon2DInfo.LocalPoints[i];
     }
 
     m_PolygonMesh->ChangeVertexBuffer(CenterFrame.data(), sizeof(FVector3), CenterFrame.size());
@@ -140,11 +140,11 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
     CCollider::PostUpdate(_DeltaTime);
 
     m_Polygon2DInfo.Center = m_WorldPos;
-    m_Polygon2DInfo.WorldPoint.resize(m_Polygon2DInfo.Points.size());
+    m_Polygon2DInfo.WorldPoint.resize(m_Polygon2DInfo.LocalPoints.size());
     // 사각형을 구성하는 4개의 꼭지점을 구한다.
     std::vector<FVector3> Pos;
 
-    for (int i = 0; i < m_Polygon2DInfo.Points.size(); ++i)
+    for (int i = 0; i < m_Polygon2DInfo.LocalPoints.size(); ++i)
     {
         FMatrix matWorld;
 
@@ -156,7 +156,7 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
         {
             matWorld = m_RotMatrix * m_TranslateMatrix;
         }
-        FVector3 Point = m_Polygon2DInfo.Points[i];
+        FVector3 Point = m_Polygon2DInfo.LocalPoints[i];
         FVector4 Point4 = matWorld * FVector4(Point.x,Point.y, Point.z, 1.f);
         Point = FVector3(Point4.x, Point4.y, Point4.z);
         Pos.push_back(Point);
@@ -198,9 +198,9 @@ std::weak_ptr<class CMesh> CColliderPolygon2D::CreateMesh()
     std::vector<FVector3> CenterFrame(m_MaxPoint, FVector3::Zero);
     std::vector<unsigned short> CenterFrameIdx(m_MaxPoint + 1, 0);
 
-    for (int i = 0; i < m_Polygon2DInfo.Points.size(); ++i)
+    for (int i = 0; i < m_Polygon2DInfo.LocalPoints.size(); ++i)
     {
-        CenterFrame[i] = m_Polygon2DInfo.Points[i];
+        CenterFrame[i] = m_Polygon2DInfo.LocalPoints[i];
         CenterFrameIdx[i] = i;
     }
 

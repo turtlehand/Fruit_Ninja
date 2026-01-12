@@ -270,4 +270,6 @@ void CCollider::Disable()
 		//CallCollisionEnd(Dest.get());
 		//Dest->CallCollisionEnd(this);
 	}
+	m_CollisionObjectMap.clear();
+
 }

@@ -622,31 +622,31 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, co
 {
 	// 하지만 들어오지 않을 경우 사각형을 구성하는 4개의 변을 만들고 선을 교차하는 변이 있는지 체크하여 검사한다.
 	// 사각형을 구상하는 4개의 꼭지점을 구한다.
-	std::vector<FVector3> Pos(_Polygon.Points.size());
+	std::vector<FVector3> Pos(_Polygon.LocalPoints.size());
 
-	for (int i = 0; i < _Polygon.Points.size(); ++i)
+	for (int i = 0; i < _Polygon.LocalPoints.size(); ++i)
 	{
 		Pos[i] = _Polygon.WorldPoint[i];
 		
 	}
 
-	std::vector<FLine2DInfo> Line(_Polygon.Points.size());
+	std::vector<FLine2DInfo> Line(_Polygon.LocalPoints.size());
 
-	for (int i = 0; i < _Polygon.Points.size() - 1; ++i)
+	for (int i = 0; i < _Polygon.LocalPoints.size() - 1; ++i)
 	{
 		Line[i].Start = Pos[i];
 		Line[i].End = Pos[i + 1];
 	}
 
-	Line[_Polygon.Points.size() - 1].Start = Pos[_Polygon.Points.size() - 1];
-	Line[_Polygon.Points.size() - 1].End = Pos[0];
+	Line[_Polygon.LocalPoints.size() - 1].Start = Pos[_Polygon.LocalPoints.size() - 1];
+	Line[_Polygon.LocalPoints.size() - 1].End = Pos[0];
 
 	bool Result = false;
 	float Dist = FLT_MAX;
 	FVector3 HitResult;
 
 	// _Line과 박스의 각 선분 충돌 검사를 한다.
-	for (int i = 0; i < _Polygon.Points.size(); ++i)
+	for (int i = 0; i < _Polygon.LocalPoints.size(); ++i)
 	{
 		if (CollisionLine2DToLine2D(_HitPoint, _Line, Line[i]))
 		{

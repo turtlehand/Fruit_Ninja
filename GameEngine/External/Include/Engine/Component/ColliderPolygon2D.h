@@ -27,7 +27,7 @@ public:
 		return m_Polygon2DInfo;
 	}
 
-	int GetPointCount() const { return m_Polygon2DInfo.Points.size(); }
+	int GetPointCount() const { return m_Polygon2DInfo.LocalPoints.size(); }
 
 	void AddPoint(const FVector3& _Point);
 	void ChangeVertex(int _Index, const FVector3& _Point);

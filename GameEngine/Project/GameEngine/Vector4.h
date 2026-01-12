@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "EngineMath.h"
+#include "Vector3.h"
 
 struct FVector4
 {
@@ -36,6 +37,14 @@ struct FVector4
 		y(v.y),
 		z(v.z),
 		w(v.w)
+	{
+	}
+
+	FVector4(const FVector3& _Vector3, float _w) :
+		x(_Vector3.x),
+		y(_Vector3.y),
+		z(_Vector3.z),
+		w(_w)
 	{
 	}
 
