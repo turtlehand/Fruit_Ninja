@@ -195,6 +195,7 @@
     <ClInclude Include="Asset\Shader\ShaderManager.h" />
     <ClInclude Include="Asset\Shader\ShaderMaterialColor2D.h" />
     <ClInclude Include="Asset\Shader\ShaderTexture2D.h" />
+    <ClInclude Include="Asset\Shader\ShaderWireFrame.h" />
     <ClInclude Include="Asset\Texture\Texture.h" />
     <ClInclude Include="Asset\Texture\TextureManager.h" />
     <ClInclude Include="CollisionInfoManager.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="Asset\Shader\ShaderManager.cpp" />
     <ClCompile Include="Asset\Shader\ShaderMaterialColor2D.cpp" />
     <ClCompile Include="Asset\Shader\ShaderTexture2D.cpp" />
+    <ClCompile Include="Asset\Shader\ShaderWireFrame.cpp" />
     <ClCompile Include="Asset\Texture\Texture.cpp" />
     <ClCompile Include="Asset\Texture\TextureManager.cpp" />
     <ClCompile Include="CollisionInfoManager.cpp" />

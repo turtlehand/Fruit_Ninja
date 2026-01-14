@@ -20,6 +20,8 @@ struct FVector3
 
 	FVector3(const DirectX::XMVECTOR& v);
 
+
+
 #pragma endregion Construction
 
 #pragma region Equal
@@ -33,6 +35,10 @@ struct FVector3
 	const FVector3& operator = (double Value);
 
 	const FVector3& operator = (int Value);
+
+	bool operator== (const FVector3& v) const;
+
+	bool operator!= (const FVector3& v) const;
 
 #pragma endregion Equal
 

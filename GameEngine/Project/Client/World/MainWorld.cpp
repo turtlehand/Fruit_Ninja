@@ -65,8 +65,10 @@ bool CMainWorld::Init()
 	auto WFruit = Fruit.lock();
 	WFruit->SetRelativeScale(100.f, 100.f);
 	WFruit->SetRelativePos(0.f, 0.f);
+	//WFruit->CreateStar();
 	WFruit->CreatePentagon();
-
+	//WFruit->CreateTriangle();
+	//WFruit->CreateRectangle();
 	//std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");
 	//auto WSlash = Slash.lock();
 	//WSlash->SetRelativePos(0.f, -100.f);

@@ -5,6 +5,9 @@
 #include "ShaderMaterialColor2D.h"
 #include "ShaderTexture2D.h"
 #include "ShaderCollider.h"
+#include "ShaderWireFrame.h"
+
+#include "Device.h"
 
 CShaderManager::CShaderManager()
 {
@@ -17,6 +20,17 @@ CShaderManager::~CShaderManager()
 
 bool CShaderManager::Init()
 {
+	D3D11_RASTERIZER_DESC Desc = {};
+	Desc.CullMode = D3D11_CULL_FRONT;
+	Desc.FillMode = D3D11_FILL_SOLID;
+	if (CDevice::GetInst()->GetDevice()->CreateRasterizerState(&Desc, m_RSState[(UINT)0].GetAddressOf()))
+		return false;
+
+	Desc.CullMode = D3D11_CULL_NONE;
+	Desc.FillMode = D3D11_FILL_WIREFRAME;
+	if (CDevice::GetInst()->GetDevice()->CreateRasterizerState(&Desc, m_RSState[(UINT)1].GetAddressOf()))
+		return false;
+
 	// ============== 상수 버퍼 ============== 
 	// Transform 정보를 0번 상수 레지스터에, Graphic 관련 셰이더에게 등록한다.
 	if (!CreateCBuffer("Transform", sizeof(FCBufferTransformData), 0, EShaderBufferType::Graphic))
@@ -34,6 +48,8 @@ bool CShaderManager::Init()
 	if (!CreateCBuffer("Collider", sizeof(FCBufferColliderData), 10, EShaderBufferType::Pixel))
 		return false;
 
+
+
 	//=============== Shader ========================
 	if (!CreateShader<CShaderColor2D>("Color2D", L"EngineShader"))
 		return false;
@@ -46,6 +62,11 @@ bool CShaderManager::Init()
 
 	if (!CreateShader<CShaderCollider>("Collider", L"EngineShader"))
 		return false;
+
+	if (!CreateShader<CShaderWireFrame>("WireFrame", L"EngineShader"))
+		return false;
+
+
 	return true;
 }
 

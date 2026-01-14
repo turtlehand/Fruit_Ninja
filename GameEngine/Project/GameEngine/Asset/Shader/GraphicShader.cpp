@@ -2,7 +2,8 @@
 #include "GraphicShader.h"
 #include "Device.h"
 #include "Asset/PathManager.h"
-
+#include "../AssetManager.h"
+#include "ShaderManager.h"
 
 CGraphicShader::CGraphicShader()
 	: m_Size(0)
@@ -17,6 +18,8 @@ CGraphicShader::~CGraphicShader()
 
 bool CGraphicShader::Init(const std::wstring& _PathName)
 {
+	m_RS = CAssetManager::GetInst()->GetShaderManager().lock()->GetRS(0);
+
 	return true;
 }
 
@@ -25,6 +28,9 @@ void CGraphicShader::SetShader()
 {
 	CDevice::GetInst()->GetContext()->VSSetShader(m_VS.Get(), nullptr, 0);
 	CDevice::GetInst()->GetContext()->PSSetShader(m_PS.Get(), nullptr, 0);
+
+	// Resterize(Cull Type)
+	CDevice::GetInst()->GetContext()->RSSetState(m_RS.Get());
 
 	CDevice::GetInst()->GetContext()->IASetInputLayout(m_InputLayout.Get());
 }

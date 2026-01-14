@@ -12,8 +12,9 @@ public:
 	~CShaderManager();
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<CShader>> m_ShaderMap;
-	std::unordered_map<std::string, std::shared_ptr<CConstantBuffer>> m_CBufferMap;
+	std::unordered_map<std::string, std::shared_ptr<CShader>>			m_ShaderMap;
+	std::unordered_map<std::string, std::shared_ptr<CConstantBuffer>>	m_CBufferMap;
+	ComPtr<ID3D11RasterizerState>										m_RSState[2];
 
 public:
 	bool Init();
@@ -24,6 +25,8 @@ public:
 	bool CreateCBuffer(const std::string& _Name, int _Size, int _Register, int _ShaderBuffer = EShaderBufferType::VP);
 	void ReleaseShader(const std::string& _Name);
 	void ReleaseCBuffer(const std::string& _Name);
+
+	ComPtr<ID3D11RasterizerState> GetRS(int _i) { return m_RSState[_i]; }
 
 public:
 	template<typename T>

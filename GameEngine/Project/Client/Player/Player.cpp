@@ -170,10 +170,10 @@ bool CPlayer::Init()
 		//ColliderPolygon->ChangeVertex(3, FVector3(-58.78f, -80.90f, 0.f));
 		//ColliderPolygon->AddPoint(FVector3(-95.11f, 30.90f, 0.f));
 
-		ColliderPolygon->ChangeVertex(0, FVector3(-50.0f, 50.f, 0.f));
-		ColliderPolygon->ChangeVertex(1, FVector3(50.f, 50.f, 0.f));
-		ColliderPolygon->ChangeVertex(2, FVector3(-50.f, -50.f, 0.f));
-		ColliderPolygon->ChangeVertex(3, FVector3(50.f, -50.f, 0.f));
+		ColliderPolygon->SetPoint(0, FVector3(-50.0f, 50.f, 0.f));
+		ColliderPolygon->SetPoint(1, FVector3(50.f, 50.f, 0.f));
+		ColliderPolygon->SetPoint(2, FVector3(-50.f, -50.f, 0.f));
+		ColliderPolygon->SetPoint(3, FVector3(50.f, -50.f, 0.f));
 		ColliderPolygon->AddPoint(FVector3(-50.f, 30.90f, 0.f));
 
 		ColliderPolygon->SetDebugDraw(true);
@@ -358,7 +358,7 @@ void CPlayer::MoveUp()
 	auto PolyCol = m_ColliderPolygon.lock();
 	FVector3 Point = PolyCol->GetInfo().LocalPoints[0];
 	Point.y += 50 * CTimer::GetDeltaTime();
-	PolyCol->ChangeVertex(0, Point);
+	PolyCol->SetPoint(0, Point);
 }
 
 void CPlayer::MoveDown()

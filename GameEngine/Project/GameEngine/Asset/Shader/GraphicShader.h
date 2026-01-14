@@ -27,7 +27,7 @@ protected:
     // PixelShader 코드를 컴파일하고 바이트 코드를 저장하기 위한 버퍼
     ComPtr<ID3DBlob> m_PSBlob;
 
-
+    ComPtr<ID3D11RasterizerState> m_RS;
 public:
     virtual bool Init(const std::wstring& _PathName) = 0;
     virtual void SetShader() final;

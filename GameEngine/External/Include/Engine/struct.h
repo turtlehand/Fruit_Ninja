@@ -80,11 +80,18 @@ struct FLine2DInfo
     FVector3 End;
 };
 
+struct FTriangle2DInfo
+{
+    FVector3 Point[3];
+};
+
 struct FPolygon2DInfo
 {
     FVector3 Center;
-    std::vector<FVector3> LocalPoints;
-    std::vector<FVector3> WorldPoint;
+    std::vector<FVector3> LocalPoints;          // 폴리곤의 Local 좌표, 폴리곤의 기본 형태
+    std::vector<FVector3> WorldPoint;           // 폴리곤의 World 좌표, 충돌 좌표 계산용
+    // // 삼각형 CW : 시계방향으로 구성할 것, 인덱스 구성용
+    //std::vector<FTriangle2DInfo> WorldTriangle;
 };
 
 struct FCollisionChannel

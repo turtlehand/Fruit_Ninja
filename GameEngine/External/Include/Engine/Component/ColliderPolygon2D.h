@@ -30,7 +30,9 @@ public:
 	int GetPointCount() const { return m_Polygon2DInfo.LocalPoints.size(); }
 
 	void AddPoint(const FVector3& _Point);
-	void ChangeVertex(int _Index, const FVector3& _Point);
+	void SetPoint(int _Index, const FVector3& _Point);
+	void RemovePoint();
+	bool SlicePolygon2DToLine2D(const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
 
 public:
 	virtual void SetDebugDraw(bool _DebugDraw) override;
@@ -48,6 +50,7 @@ public:
 
 private:
 	std::weak_ptr<class CMesh> CreateMesh(); 
+	void UpdateMesh();
 	
 };
 

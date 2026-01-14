@@ -87,6 +87,19 @@ const FVector3& FVector3::operator = (int Value)
 	return *this;
 }
 
+bool FVector3::operator==(const FVector3& v) const
+{
+	if (x == v.x && y == v.y && z == v.z)
+		return true;
+
+	return false;
+}
+
+bool FVector3::operator!=(const FVector3& v) const
+{
+	return !operator==(v);
+}
+
 #pragma endregion Equal
 
 #pragma region Plus

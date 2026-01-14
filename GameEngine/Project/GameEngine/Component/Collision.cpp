@@ -289,9 +289,9 @@ ECCWResult::Type CCollision::CCW2D(const FVector3& _p1, const FVector3& _p2, con
 
 	float Cross = v.x * w.y - v.y * w.x;
 
-	if (Cross < 0.0f)
+	if (Cross < -0.00001f)
 		return ECCWResult::CW;
-	else if (Cross > 0.f)
+	else if (Cross > 0.00001f)
 		return ECCWResult::CCW;
 	
 	return ECCWResult::None;
@@ -618,6 +618,92 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, CC
 	return true;;
 }
 
+// CW
+// 시계 방향을 기준으로 진행
+bool CCollision::EarClippingPolygon2D(const FPolygon2DInfo& _Polygon, std::vector<FTriangle2DInfo>& _Triangle)
+{
+	int Size = _Polygon.LocalPoints.size();
+	if (Size < 3) return false;
+
+	std::list<FVector3> TriIndex;
+	for (int i = 0; i < Size; ++i)
+		TriIndex.push_back(_Polygon.LocalPoints[i]);
+
+	std::list<FVector3>::iterator iter = TriIndex.begin();
+	FTriangle2DInfo Tri;
+
+	// [추가] 무한 루프 방지를 위한 연속 실패 카운터
+	int SkipCount = 0;
+
+	while (TriIndex.size() > 3)
+	{
+		// [추가] 모든 점을 한 번씩 다 찔러봤는데 하나도 못 잘랐다면 (일직선 상황 등)
+		if (SkipCount >= TriIndex.size())
+		{
+			// 남은 점들이 일직선이거나 자를 수 없는 구조이므로 강제 종료
+			break;
+		}
+
+		// 원형 리스트 처리
+		if (iter == TriIndex.end()) iter = TriIndex.begin();
+
+		// 현재 iter부터 3개의 점 추출
+		std::list<FVector3>::iterator it0 = iter;
+		std::list<FVector3>::iterator it1 = std::next(it0) == TriIndex.end() ? TriIndex.begin() : std::next(it0);
+		std::list<FVector3>::iterator it2 = std::next(it1) == TriIndex.end() ? TriIndex.begin() : std::next(it1);
+
+		Tri.Point[0] = *it0;
+		Tri.Point[1] = *it1;
+		Tri.Point[2] = *it2;
+
+		std::vector<FVector3> Temp;
+		ECCWResult::Type CCWR = CCW2D(Tri.Point[0], Tri.Point[1], Tri.Point[2]);
+
+		// 1. 볼록(CW/CCW 판정은 엔진 기준에 맞춤)하며 
+		// 2. 내부에 다른 점이 없는 '귀'인 경우
+		if (CCWR == ECCWResult::CW && !CollisionTriangle2DToPoint2Ds(Temp, Tri, TriIndex))
+		{
+			_Triangle.push_back(Tri);
+			iter = TriIndex.erase(it1); // 가운데 점(귀의 끝점) 제거
+			SkipCount = 0;              // 자르기 성공했으므로 카운트 초기화
+		}
+		else if (CCWR == ECCWResult::None)
+		{
+			_Triangle.push_back(Tri);
+			iter = TriIndex.erase(it1); // 가운데 점(귀의 끝점) 제거
+			SkipCount = 0;              // 자르기 성공했으므로 카운트 초기화
+		}
+		else
+		{
+			++iter;           // 다음 점으로 이동
+			++SkipCount;      // 자르기 실패 카운트 증가
+		}
+	}
+
+	// 마지막 남은 3개 처리
+	if (TriIndex.size() == 3)
+	{
+		auto it = TriIndex.begin();
+		Tri.Point[0] = *it++;
+		Tri.Point[1] = *it++;
+		Tri.Point[2] = *it;
+
+		if (CCW2D(Tri.Point[0], Tri.Point[1], Tri.Point[2]) == ECCWResult::CW)
+			_Triangle.push_back(Tri);
+	}
+
+
+	return true;
+}
+
+/// <summary>
+/// 폴리곤의 선과 다른 선분의 충돌
+/// 단 내부에 선이 들어오면 감지하지 못한다.
+/// </summary>
+/// <param name="_HitPoint"></param>
+/// <param name="_Polygon"></param>
+/// <param name="_Line"></param>
+/// <returns></returns>
 bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, const FPolygon2DInfo& _Polygon, const FLine2DInfo& _Line)
 {
 	// 하지만 들어오지 않을 경우 사각형을 구성하는 4개의 변을 만들고 선을 교차하는 변이 있는지 체크하여 검사한다.
@@ -656,4 +742,85 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, co
 
 	return Result;
 
+}
+
+
+/// <summary>
+/// 삼각형과 점의 충돌
+/// </summary>
+/// <param name="_HitPoint"></param>
+/// <param name="_Triangle"></param>
+/// <param name="_Point"></param>
+/// <returns></returns>
+bool CCollision::CollisionTriangle2DToPoint2D(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo& _Triangle, const FVector3& _Point)
+{
+	if (CCW2D(_Triangle.Point[0], _Triangle.Point[1], _Point) == ECCWResult::CCW)
+		return false;
+	if (CCW2D(_Triangle.Point[1], _Triangle.Point[2], _Point) == ECCWResult::CCW)
+		return false;
+	if (CCW2D(_Triangle.Point[2], _Triangle.Point[0], _Point) == ECCWResult::CCW)
+		return false;
+
+	_HitPoint.push_back(_Point);
+	return true;
+}
+
+/// <summary>
+/// 삼각형과 점들의 충돌
+/// </summary>
+/// <param name="_HitPoint"></param>
+/// <param name="_Triangle"></param>
+/// <param name="_Point"></param>
+/// <returns></returns>
+bool CCollision::CollisionTriangle2DToPoint2Ds(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo _Triangle, const std::list<FVector3>& _Point)
+{
+	std::list<FVector3>::const_iterator iter = _Point.begin();
+	std::list<FVector3>::const_iterator iterEnd = _Point.end();
+
+	for (iter; iter != iterEnd; ++iter)
+	{
+		if (_Triangle.Point[0] == *iter || _Triangle.Point[1] == *iter || _Triangle.Point[2] == *iter)
+			continue;
+
+		if (CollisionTriangle2DToPoint2D(_HitPoint, _Triangle, *iter))
+			return true;
+	}
+
+	return false;
+}
+
+/// <summary>
+/// 삼각형과 선의 충돌
+/// </summary>
+/// <param name="_HitPoint"></param>
+/// <param name="_Triangle"></param>
+/// <param name="_Line"></param>
+/// <returns></returns>
+bool CCollision::CollisionTriangle2DToLine2D(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo& _Triangle, const FLine2DInfo& _Line)
+{
+	if (CollisionTriangle2DToPoint2D(_HitPoint, _Triangle, _Line.Start))
+		return true;
+
+	if (CollisionTriangle2DToPoint2D(_HitPoint, _Triangle, _Line.End))
+		return true;
+
+	FLine2DInfo TriLine;
+	TriLine.Start = _Triangle.Point[0];
+	TriLine.End = _Triangle.Point[1];
+	bool IsCollision = false;
+	if (CollisionLine2DToLine2D(_HitPoint, TriLine, _Line))
+		IsCollision = true;
+
+	TriLine.Start = _Triangle.Point[1];
+	TriLine.End = _Triangle.Point[2];
+	if (CollisionLine2DToLine2D(_HitPoint, TriLine, _Line))
+		IsCollision = true;
+
+
+	TriLine.Start = _Triangle.Point[2];
+	TriLine.End = _Triangle.Point[0];
+	if (CollisionLine2DToLine2D(_HitPoint, TriLine, _Line))
+		IsCollision = true;
+
+	return IsCollision;
 }

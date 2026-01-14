@@ -35,6 +35,7 @@ public:
 private:
 	static bool PointOnLine2D(const FVector3& _LineStart, const FVector3& _LineEnd, const FVector3& _Point);
 
+	// BoxToLine
 public:
 	static bool CollisionBox2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderBox2D* _Src, CColliderLine2D* _Dest);
 private:
@@ -47,10 +48,20 @@ public:
 private:
 	static bool CollisionSphere2DToLine2D(std::vector<FVector3>& _HitPoint, const FSphere2DInfo& _Sphere, const FLine2DInfo& _Line);
 
+	// Polygon To Line
 public:
 	static bool CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderPolygon2D* _Polygon, CColliderLine2D* _Line);
+	static bool EarClippingPolygon2D(const FPolygon2DInfo& _Polygon, std::vector<FTriangle2DInfo>& _Triangle);
 private:
 	static bool CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, const FPolygon2DInfo& _Polygon, const FLine2DInfo& _Line);
+
+	// Triangle To Point
+public:
+	static bool CollisionTriangle2DToPoint2D(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo& _Triangle, const FVector3& _Point);
+	static bool CollisionTriangle2DToPoint2Ds(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo _Triangle, const std::list<FVector3>& _Point);
+
+public:
+	static bool CollisionTriangle2DToLine2D(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo& _Triangle, const FLine2DInfo& _Line);
 
 };
 

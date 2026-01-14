@@ -357,6 +357,9 @@
     <ClInclude Include="Component\ColliderPolygon2D.h">
       <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
     </ClInclude>
+    <ClInclude Include="Asset\Shader\ShaderWireFrame.h">
+      <Filter>03. Asset\02. Shader\02. Shader\Graphic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -550,6 +553,9 @@
     </ClCompile>
     <ClCompile Include="Component\ColliderPolygon2D.cpp">
       <Filter>05. Component\01. SceneComponent\03. Collider\01. 2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset\Shader\ShaderWireFrame.cpp">
+      <Filter>03. Asset\02. Shader\02. Shader\Graphic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
