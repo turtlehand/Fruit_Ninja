@@ -620,14 +620,14 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, CC
 
 // CW
 // 시계 방향을 기준으로 진행
-bool CCollision::EarClippingPolygon2D(const FPolygon2DInfo& _Polygon, std::vector<FTriangle2DInfo>& _Triangle)
+bool CCollision::EarClipping(const std::vector<FVector3>& _Point, std::vector<FTriangle2DInfo>& _Triangle)
 {
-	int Size = _Polygon.LocalPoints.size();
+	int Size = _Point.size();
 	if (Size < 3) return false;
 
 	std::list<FVector3> TriIndex;
 	for (int i = 0; i < Size; ++i)
-		TriIndex.push_back(_Polygon.LocalPoints[i]);
+		TriIndex.push_back(_Point[i]);
 
 	std::list<FVector3>::iterator iter = TriIndex.begin();
 	FTriangle2DInfo Tri;

@@ -17,6 +17,7 @@
 #include "Object.h"
 #include "Component/CameraComponent.h"
 #include "Component/MeshComponent.h"
+#include "Component/DynamicMeshComponent.h"
 #include "Object/GameObject.h"
 
 bool CEngine::m_Loop = true;
@@ -79,6 +80,7 @@ bool CEngine::Init(HINSTANCE _hInst, const TCHAR* _WindowName, int _IconID, int 
     }
 
     CMeshComponent::CreateEmptyAnimCBuffer();
+    CDynamicMeshComponent::CreateEmptyAnimCBuffer();
 
     if (!m_Setting->Init())
         return false;

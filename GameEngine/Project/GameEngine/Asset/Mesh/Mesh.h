@@ -36,6 +36,7 @@ class CMesh :
 protected:
 	friend class CMeshManager;
 	friend class CColliderPolygon2D;
+	friend class CDynamicMeshComponent;
 	CMesh();
 public:
 	virtual ~CMesh() override;

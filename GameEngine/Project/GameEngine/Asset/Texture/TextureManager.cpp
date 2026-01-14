@@ -17,6 +17,7 @@ bool CTextureManager::Init()
 	CreateSampler("Point", D3D11_FILTER_MIN_MAG_MIP_POINT);
 	CreateSampler("Linear", D3D11_FILTER_MIN_MAG_MIP_LINEAR);
 	
+	
 	SetSampler("Point", 0, EShaderBufferType::All);
 	SetSampler("Linear", 1, EShaderBufferType::All);
 

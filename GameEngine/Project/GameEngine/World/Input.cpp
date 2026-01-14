@@ -199,9 +199,9 @@ void CInput::UpdateMouse()
 	m_MouseGamePos.x = m_MouseGamePos.x - MainCamera->GetWidth() / 2;
 	m_MouseGamePos.y = -m_MouseGamePos.y + MainCamera->GetHeight() / 2;
 
-	char	Test[256] = {};
+	/*char	Test[256] = {};
 	sprintf_s(Test, "MousePos : %f, %f\n", m_MouseGamePos.x, m_MouseGamePos.y);
-	OutputDebugStringA(Test);
+	OutputDebugStringA(Test);*/
 
 }
 

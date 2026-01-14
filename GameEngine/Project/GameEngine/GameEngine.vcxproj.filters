@@ -360,6 +360,9 @@
     <ClInclude Include="Asset\Shader\ShaderWireFrame.h">
       <Filter>03. Asset\02. Shader\02. Shader\Graphic</Filter>
     </ClInclude>
+    <ClInclude Include="Component\DynamicMeshComponent.h">
+      <Filter>05. Component\01. SceneComponent\01. Mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -556,6 +559,9 @@
     </ClCompile>
     <ClCompile Include="Asset\Shader\ShaderWireFrame.cpp">
       <Filter>03. Asset\02. Shader\02. Shader\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\DynamicMeshComponent.cpp">
+      <Filter>05. Component\01. SceneComponent\01. Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -17,6 +17,7 @@
 #include "ColliderBox2D.h"
 #include "ColliderSphere2D.h"
 #include "ColliderLine2D.h"
+#include "DynamicMeshComponent.h"
 
 CColliderPolygon2D::CColliderPolygon2D() :
     CCollider(EColliderType::Polygon2D),
@@ -350,7 +351,7 @@ void CColliderPolygon2D::UpdateMesh()
     // 삼각형 분할
     //m_Polygon2DInfo.LocalTriangle.clear();
     std::vector<FTriangle2DInfo> Triangle;
-    CCollision::EarClippingPolygon2D(m_Polygon2DInfo, Triangle);
+    CCollision::EarClipping(m_Polygon2DInfo.LocalPoints, Triangle);
 
     // 정점, 인덱스 버퍼 변경하기
     // 속이 빈 다각형

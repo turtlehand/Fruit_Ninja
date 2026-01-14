@@ -2,6 +2,7 @@
 #include "Engine\Object\GameObject.h"
 
 class CMeshComponent;
+class CDynamicMeshComponent;
 class CColliderPolygon2D;
 
 // 충돌한 베기의 정보
@@ -26,7 +27,7 @@ public:
 
 private:
 	bool                                                m_IsBegin;
-	std::weak_ptr<CMeshComponent>                       m_MeshComponent;
+	std::weak_ptr<CDynamicMeshComponent>                       m_MeshComponent;
 	std::weak_ptr<CColliderPolygon2D>                   m_PolygonCollider;
 
 public:
@@ -35,6 +36,8 @@ public:
 	virtual void Update(double _DeltaTime) override;
 
 public:
+	void CreateRegularPolygon(int _n, float _Radius);
+	void CreateApplePolygon();
 	void CreatePentagon();
 	void CreateStar();
 	void CreateTriangle();

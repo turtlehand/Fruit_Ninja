@@ -6,6 +6,7 @@
 #include "Asset/Texture/Texture.h"
 
 #include "Component/MeshComponent.h"
+#include "Component/DynamicMeshComponent.h"
 #include "Component/ColliderPolygon2D.h"
 #include "Component/ColliderLine2D.h"
 
@@ -30,17 +31,16 @@ CFruit::~CFruit()
 
 bool CFruit::Init()
 {
-    m_MeshComponent = CreateComponent<CMeshComponent>("Root");
+    m_MeshComponent = CreateComponent<CDynamicMeshComponent>("Root");
 	m_PolygonCollider = CreateComponent<CColliderPolygon2D>("Collider");
 
     auto MeshC = m_MeshComponent.lock();
 
     if (MeshC)
     {
-        MeshC->SetMesh("CenterRectTex");
         MeshC->SetShader("DefaultTexture2D");
         MeshC->SetMaterialBaseColor(0, FVector4(1.0f, 1.0f, 1.0f, 1.0f));
-        //MeshC->AddTexture(0, "Apple", TEXT("Apple.png"));
+        MeshC->AddTexture(0, "Apple", TEXT("Apple.png"));
         MeshC->SetBlendState(0, "AlphaBlend");
         //MeshC->SetRelativeScale(100.f, 100.f);
     }
@@ -50,7 +50,7 @@ bool CFruit::Init()
 	if (ColliderPolygon)
 	{
 		ColliderPolygon->SetCollisionProfile("Fruit");
-		ColliderPolygon->SetDebugDraw(true);
+		ColliderPolygon->SetDebugDraw(false);
 		ColliderPolygon->SetInheritScale(true);
 		ColliderPolygon->SetEnable(true);
 
@@ -74,13 +74,80 @@ void CFruit::Update(double _DeltaTime)
 
 	if (Mesh)
 	{
-		//Mesh->AddRelativeRotationZ(100 * _DeltaTime);
+		Mesh->AddRelativeRotationZ(100 * _DeltaTime);
+	}
+}
+
+void CFruit::CreateRegularPolygon(int _n, float _Radius)
+{
+	if (_n < 3) return; // 최소 삼각형부터 가능
+
+	auto ColliderPolygon = m_PolygonCollider.lock();
+	auto DMesh = m_MeshComponent.lock();
+
+	if (ColliderPolygon && DMesh)
+	{
+		float Radius = _Radius;
+		// 360도(2 * PI)를 n으로 나누어 한 내각의 크기를 구함
+		float AngleStep = (2.0f * 3.1415926535f) / (float)_n;
+
+		for (int i = 0; i < _n; ++i)
+		{
+			// 현재 점의 각도 (12시 방향부터 시작하려면 -PI/2를 더하거나 x,y를 바꿈)
+			// 보통 12시 방향 시작은 (cos(90도), sin(90도)) 형태입니다.
+			float CurrentAngle = (float)i * AngleStep;
+
+			// 시계 방향(CW)으로 생성 (x = sin, y = cos)
+			// sin, cos을 이용해 반지름 0.5 범위 내의 좌표 계산
+			float x = std::sin(CurrentAngle) * Radius;
+			float y = std::cos(CurrentAngle) * Radius;
+
+			FVector3 Point(x, y, 0.0f);
+
+			ColliderPolygon->AddPoint(Point);
+			DMesh->AddPoint(Point);
+		}
+	}
+}
+
+void CFruit::CreateApplePolygon()
+{
+	auto ColliderPolygon = m_PolygonCollider.lock();
+	auto DMesh = m_MeshComponent.lock();
+
+	if (ColliderPolygon && DMesh)
+	{
+		// 12시 상단 홈부터 시계 방향(CW)으로 정점 정의
+		// 범위는 약 -0.5f ~ 0.5f 사이로 세팅 (반지름 0.5 기준)
+		FVector3 ApplePoints[] = {
+			FVector3(0.00f,  0.30f, 0.0f), // 1. 상단 중앙 (쏙 들어간 홈)
+			FVector3(0.15f,  0.37f, 0.0f), // 2. 오른쪽 어깨 시작
+			FVector3(0.4f,  0.23f, 0.0f), // 3. 오른쪽 상단 최대 곡률
+			FVector3(0.47f,  0.00f, 0.0f), // 4. 오른쪽 옆구리 (가장 넓은 곳)
+			FVector3(0.34f, -0.38f, 0.0f), // 5. 오른쪽 하단 곡선
+			FVector3(0.24f, -0.48f, 0.0f), // 6. 오른쪽 아래 끝
+			FVector3(0.15f, -0.5f, 0.0f), // 6. 오른쪽 아래 끝
+			FVector3(0.00f, -0.46f, 0.0f), // 7. 하단 중앙 (살짝 들어간 부분)
+			FVector3(-0.15f, -0.5f, 0.0f), // 8. 왼쪽 아래 끝
+			FVector3(-0.24f, -0.48f, 0.0f), // 8. 왼쪽 아래 끝
+			FVector3(-0.34f, -0.38f, 0.0f), // 9. 왼쪽 하단 곡선
+			FVector3(-0.47f,  0.00f, 0.0f), // 10. 왼쪽 옆구리
+			FVector3(-0.4f,  0.23f, 0.0f), // 11. 왼쪽 상단 최대 곡률
+			FVector3(-0.15f,  0.37f, 0.0f)  // 12. 왼쪽 어깨 시작
+		};
+
+		for (const auto& Pt : ApplePoints)
+		{
+			ColliderPolygon->AddPoint(Pt);
+			DMesh->AddPoint(Pt);
+		}
 	}
 }
 
 void CFruit::CreatePentagon()
 {
 	auto ColliderPolygon = m_PolygonCollider.lock();
+	auto DMesh = m_MeshComponent.lock();
 
 	if (ColliderPolygon)
 	{
@@ -88,18 +155,23 @@ void CFruit::CreatePentagon()
 
 		// 1. 꼭대기 (12시 방향)
 		ColliderPolygon->AddPoint(FVector3(0.0f, 1.0f, 0.0f));
+		DMesh->AddPoint(FVector3(0.0f, 1.0f, 0.0f));
 
 		// 2. 오른쪽 위 (2시 방향) - x가 양수
 		ColliderPolygon->AddPoint(FVector3(0.9511f, 0.3090f, 0.0f));
+		DMesh->AddPoint(FVector3(0.9511f, 0.3090f, 0.0f));
 
 		// 3. 오른쪽 아래 (5시 방향)
 		ColliderPolygon->AddPoint(FVector3(0.5878f, -0.8090f, 0.0f));
+		DMesh->AddPoint(FVector3(0.5878f, -0.8090f, 0.0f));
 
 		// 4. 왼쪽 아래 (7시 방향)
 		ColliderPolygon->AddPoint(FVector3(-0.5878f, -0.8090f, 0.0f));
+		DMesh->AddPoint(FVector3(-0.5878f, -0.8090f, 0.0f));
 
 		// 5. 왼쪽 위 (10시 방향) - x가 음수
 		ColliderPolygon->AddPoint(FVector3(-0.9511f, 0.3090f, 0.0f));
+		DMesh->AddPoint(FVector3(-0.9511f, 0.3090f, 0.0f));
 	}
 }
 
@@ -195,8 +267,8 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	//LineVec = FVector3(fabs(LineVec.x), fabs(LineVec.y), 0.f);
 	auto World = m_World.lock();
 
-	std::weak_ptr<CFruit> FruitLeft = World->CreateGameObject<CFruit>("FruitLeft");
-	auto FLM = FruitLeft.lock()->FindComponent<CMeshComponent>("Root").lock();
+	std::weak_ptr<CFruit> FruitLeft = World->CreateGameObject<CFruit>("Split Fruit");
+	auto FLM = FruitLeft.lock()->FindComponent<CDynamicMeshComponent>("Root").lock();
 	auto FLP = FruitLeft.lock()->FindComponent<CColliderPolygon2D>("Collider").lock();
 
 	FLM->SetRelativePos(GetRelativePos());
@@ -206,6 +278,7 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	for (int i = 0; i < _Points.size(); ++i)
 	{
 		FLP->AddPoint(_Points[i]);
+		FLM->AddPoint(_Points[i]);
 		FLP->PostUpdate(CTimer::GetDeltaTime());
 	}
 	
@@ -517,11 +590,32 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 
 	if (PolygonCol->SlicePolygon2DToLine2D(LineCol, LeftPoints, RightPoints))
 	{
+		// 구한 정점들이 왼쪽에 있는지 오른쪽에 있는지 확인한다.
+		FVector3 LeftPoint;
+		for (int i = 0; i < LeftPoints.size(); ++i)
+		{
+			LeftPoint += LeftPoints[i];
+		}
+		LeftPoint.x /= LeftPoints.size();
+
+		FVector3 RightPoint;
+		for (int i = 0; i < RightPoints.size(); ++i)
+		{
+			RightPoint += RightPoints[i];
+		}
+		RightPoint.x /= RightPoints.size();
+
+		if (LeftPoint.x > RightPoint.x)
+		{
+			std::swap(LeftPoints, RightPoints);
+		}
+
+
 		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
 		LineVec = FVector3(fabs(LineVec.x), fabs(LineVec.y), 0.f);
 
-		CreateSplitObject(LeftPoints).lock()->AddRelativePos(LineVec * 50.f);
-		CreateSplitObject(RightPoints).lock()->AddRelativePos(LineVec * -50.f);
+		CreateSplitObject(LeftPoints).lock()->AddRelativePos(LineVec * -50.f);
+		CreateSplitObject(RightPoints).lock()->AddRelativePos(LineVec * 50.f);
 		Destroy();
 	}
 

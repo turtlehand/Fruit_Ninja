@@ -53,6 +53,12 @@ struct FVertexTex
         UV(u, v)
     {
     }
+
+    FVertexTex(const FVector3& _Pos, const FVector2& _UV) :
+        Pos(_Pos),
+        UV(_UV)
+    {
+    }
 };
 
 struct FTextureFrame

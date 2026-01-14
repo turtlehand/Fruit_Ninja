@@ -63,10 +63,11 @@ bool CMainWorld::Init()
 	
 	std::weak_ptr<CFruit> Fruit = CreateGameObject<CFruit>("Test Fruit");
 	auto WFruit = Fruit.lock();
-	WFruit->SetRelativeScale(100.f, 100.f);
+	WFruit->SetRelativeScale(400.f, 400.f);
 	WFruit->SetRelativePos(0.f, 0.f);
 	//WFruit->CreateStar();
-	WFruit->CreatePentagon();
+	WFruit->CreateApplePolygon();
+	//WFruit->CreateRegularPolygon(10, 0.55);
 	//WFruit->CreateTriangle();
 	//WFruit->CreateRectangle();
 	//std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");

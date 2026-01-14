@@ -51,7 +51,7 @@ private:
 	// Polygon To Line
 public:
 	static bool CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderPolygon2D* _Polygon, CColliderLine2D* _Line);
-	static bool EarClippingPolygon2D(const FPolygon2DInfo& _Polygon, std::vector<FTriangle2DInfo>& _Triangle);
+	static bool EarClipping(const std::vector<FVector3>& _Points, std::vector<FTriangle2DInfo>& _Triangle);
 private:
 	static bool CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, const FPolygon2DInfo& _Polygon, const FLine2DInfo& _Line);
 
