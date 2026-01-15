@@ -16,7 +16,7 @@ CWorldCollision::~CWorldCollision()
 
 void CWorldCollision::AddCollider(const std::weak_ptr<CCollider>& _Collider)
 {
-	m_NextColliderList.push_back(_Collider);
+	m_ColliderList.push_back(_Collider);
 }
 
 bool CWorldCollision::Init()
@@ -45,7 +45,7 @@ void CWorldCollision::Update(double _DeltaTime)
 		auto iterEnd = m_ColliderList.end();
 
 		// SrcCol 0 ~ (N - 1)
-		for (; iter != iterLast;)
+		for (; iter != iterLast && iter != iterEnd;)
 		{
 #pragma region SrcCollider
 			// 유효하지 않음
@@ -175,10 +175,4 @@ void CWorldCollision::Update(double _DeltaTime)
 		}
 
 	}
-
-	for (int i = 0; i < m_NextColliderList.size(); ++i)
-	{
-		m_ColliderList.push_back(m_NextColliderList[i]);
-	}
-	m_NextColliderList.clear();
 }

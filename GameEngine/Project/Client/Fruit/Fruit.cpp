@@ -52,7 +52,7 @@ bool CFruit::Init()
 	if (ColliderPolygon)
 	{
 		ColliderPolygon->SetCollisionProfile("Fruit");
-		ColliderPolygon->SetDebugDraw(false);
+		ColliderPolygon->SetDebugDraw(true);
 		ColliderPolygon->SetInheritScale(true);
 		ColliderPolygon->SetEnable(true);
 
@@ -600,7 +600,7 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 
 	if (PolygonCol->SlicePolygon2DToLine2D(LineCol, LeftPoints, RightPoints))
 	{
-		std::weak_ptr<CGameObject> LeftFruit = CreateSplitObject(LeftPoints);
+  		std::weak_ptr<CGameObject> LeftFruit = CreateSplitObject(LeftPoints);
 		std::weak_ptr<CGameObject> RightFruit = CreateSplitObject(RightPoints);
 
 		// 구한 정점들이 왼쪽에 있는지 오른쪽에 있는지 확인한다.

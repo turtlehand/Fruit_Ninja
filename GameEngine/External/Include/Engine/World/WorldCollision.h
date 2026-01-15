@@ -11,7 +11,6 @@ public:
 	~CWorldCollision();
 
 private:
-	std::vector<std::weak_ptr<class CCollider>>	m_NextColliderList;
 	std::list<std::weak_ptr<class CCollider>>	m_ColliderList;
 	float										m_Interval;
 	float										m_IntervalTime;

@@ -72,55 +72,65 @@ void CSlashManager::Update(double _DeltaTime)
 
 	if (m_Slash.lock()->GetEnble())
 	{
-		if (m_SlashTick)
-		{
-			m_Slash.lock()->SetEnble(false);
-			m_SlashTick = false;
-		}
-		else
-		{
-			m_SlashTick = true;
-		}
+		m_Slash.lock()->SetEnble(false);
+
 	}
 
 	// 0.1초 동안 움직인 거리가 100이라면 베기 판정
 	FVector2 DisPos = Input->GetMouseGamePos();
 
+	//if (!m_PrePos.empty())
+	//{
+	//	std::list <std::pair<float, FVector2>>::iterator iter = m_PrePos.begin();
+	//	std::list <std::pair<float, FVector2>>::iterator iterEnd = m_PrePos.end();
 
-	if (!m_PrePos.empty())
+	//	for (iter; iterEnd != iter;)
+	//	{
+	//		FVector2 PrevPos = iter->second;
+	//		float Dis = (iter->second - Input->GetMouseGamePos()).Length();
+	//		float Time = iter->first + _DeltaTime;
+	//		iter->first = Time;
+
+	//		if (0.3f < Time)
+	//		{
+	//			iter = m_PrePos.erase(iter);
+	//			iterEnd = m_PrePos.end();
+
+	//			if (200.0f < Dis)
+	//			{
+	//				m_Line2DInfo.Start = FVector3(PrevPos.x, PrevPos.y, 0.f);
+	//				m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
+	//				MouseRelease();
+	//				m_PrePos.clear();
+
+	//				break;
+	//			}
+	//		}
+	//		else
+	//			++iter;
+	//	}
+	//}
+
+	//m_PrePos.push_back(std::make_pair(0.f, DisPos));
+
+
+	float Dis = (m_PrevPos - DisPos).Length();
+	float Speed = Dis / _DeltaTime;
+	
+	// 순간 속력이 1000이 넘어가면
+	if (!m_IsSlash && 400.f < Speed)
 	{
-		std::list <std::pair<float, FVector2>>::iterator iter = m_PrePos.begin();
-		std::list <std::pair<float, FVector2>>::iterator iterEnd = m_PrePos.end();
-
-		for (iter; iterEnd != iter;)
-		{
-			FVector2 PrevPos = iter->second;
-			float Dis = (iter->second - Input->GetMouseGamePos()).Length();
-			float Time = iter->first + _DeltaTime;
-			iter->first = Time;
-
-			if (0.05f < Time)
-			{
-				iter = m_PrePos.erase(iter);
-				iterEnd = m_PrePos.end();
-
-				if (300.0f < Dis)
-				{
-					m_Line2DInfo.Start = FVector3(PrevPos.x, PrevPos.y, 0.f);
-					m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
-					MouseRelease();
-					break;
-				}
-
-			}
-			else
-				++iter;
-		}
+		m_Line2DInfo.Start = FVector3(DisPos.x, DisPos.y, 0.f);
+		m_IsSlash = true;
+	}
+	else if (m_IsSlash && Speed < 400.f)
+	{
+		m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
+		MouseRelease();
+		m_IsSlash = false;
 	}
 
-	m_PrePos.push_back(std::make_pair(0.f, DisPos));
-
-
+	m_PrevPos = DisPos;
 
 }
 

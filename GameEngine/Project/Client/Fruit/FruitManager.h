@@ -24,7 +24,7 @@ public:
     virtual void Update(double _DeltaTime) override;
 
 private:
-    void SpacePress();
+    void SpawnFruit();
 
 };
 

@@ -22,7 +22,10 @@ private:
 	std::weak_ptr<class CSlash>                         m_Slash;
 	bool                                                m_SlashTick;
 
-	std::list <std::pair<float, FVector2>>				m_PrePos;
+	std::list<std::pair<float, FVector2>>				m_PrePos;
+
+	FVector2											m_PrevPos;
+	bool												m_IsSlash;
 
 public:
 	virtual bool Init() override;

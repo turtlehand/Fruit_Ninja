@@ -38,7 +38,7 @@ bool CFruitManager::Init()
 
 	auto	Input = World->GetInput().lock();
 
-	Input->AddBindFunction<CFruitManager>("SpacePress", VK_SPACE, EInputType::Press, this, &CFruitManager::SpacePress);
+	Input->AddBindFunction<CFruitManager>("SpawnFruit", VK_SPACE, EInputType::Press, this, &CFruitManager::SpawnFruit);
 
 	std::srand((unsigned int)time(NULL));
 
@@ -51,7 +51,7 @@ void CFruitManager::Update(double _DeltaTime)
 
 }
 
-void CFruitManager::SpacePress()
+void CFruitManager::SpawnFruit()
 {
 	auto	World = m_World.lock();
 
@@ -72,4 +72,3 @@ void CFruitManager::SpacePress()
 
 	FMesh->AddForce(FVector3(20000.f * Random, 33000.f, 0.f));
 }
-
