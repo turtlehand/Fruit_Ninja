@@ -273,7 +273,7 @@ bool CCollision::CollisionLine2DToLine2D(std::vector<FVector3>& _HitPoint, CColl
 
 
 
-ECCWResult::Type CCollision::CCW2D(const FVector3& _p1, const FVector3& _p2, const FVector3& _p3)
+ECCWResult::Type CCollision::CCW2D(const FVector3& _p1, const FVector3& _p2, const FVector3& _p3, float _EBound)
 {
 	// CCW(Counter Clock Wise) 알고리즘
 	// 점 3개가 이루는 방향을 계산하는 알고리즘.
@@ -289,9 +289,9 @@ ECCWResult::Type CCollision::CCW2D(const FVector3& _p1, const FVector3& _p2, con
 
 	float Cross = v.x * w.y - v.y * w.x;
 
-	if (Cross < -0.00001f)
+	if (Cross < -_EBound)
 		return ECCWResult::CW;
-	else if (Cross > 0.00001f)
+	else if (Cross > _EBound)
 		return ECCWResult::CCW;
 	
 	return ECCWResult::None;

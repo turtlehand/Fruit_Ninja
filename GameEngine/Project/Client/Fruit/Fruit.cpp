@@ -50,7 +50,7 @@ bool CFruit::Init()
 	if (ColliderPolygon)
 	{
 		ColliderPolygon->SetCollisionProfile("Fruit");
-		ColliderPolygon->SetDebugDraw(false);
+		ColliderPolygon->SetDebugDraw(true);
 		ColliderPolygon->SetInheritScale(true);
 		ColliderPolygon->SetEnable(true);
 
@@ -74,7 +74,7 @@ void CFruit::Update(double _DeltaTime)
 
 	if (Mesh)
 	{
-		Mesh->AddRelativeRotationZ(100 * _DeltaTime);
+		//Mesh->AddRelativeRotationZ(100 * _DeltaTime);
 	}
 }
 
@@ -267,9 +267,9 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	//LineVec = FVector3(fabs(LineVec.x), fabs(LineVec.y), 0.f);
 	auto World = m_World.lock();
 
-	std::weak_ptr<CFruit> FruitLeft = World->CreateGameObject<CFruit>("Split Fruit");
-	auto FLM = FruitLeft.lock()->FindComponent<CDynamicMeshComponent>("Root").lock();
-	auto FLP = FruitLeft.lock()->FindComponent<CColliderPolygon2D>("Collider").lock();
+	std::weak_ptr<CFruit> SplitFruit = World->CreateGameObject<CFruit>("Split Fruit");
+	auto FLM = SplitFruit.lock()->FindComponent<CDynamicMeshComponent>("Root").lock();
+	auto FLP = SplitFruit.lock()->FindComponent<CColliderPolygon2D>("Collider").lock();
 
 	FLM->SetRelativePos(GetRelativePos());
 	FLM->SetRelativeScale(GetRelativeScale());
@@ -282,7 +282,7 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 		FLP->PostUpdate(CTimer::GetDeltaTime());
 	}
 	
-	return FruitLeft;
+	return SplitFruit;
 }
 
 bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints)
@@ -573,7 +573,6 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 }
 */
 
-
 void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest)
 {
 	if (_HitPoint.size() < 2 || !m_IsBegin)
@@ -590,32 +589,36 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 
 	if (PolygonCol->SlicePolygon2DToLine2D(LineCol, LeftPoints, RightPoints))
 	{
+		std::weak_ptr<CGameObject> LeftFruit = CreateSplitObject(LeftPoints);
+		std::weak_ptr<CGameObject> RightFruit = CreateSplitObject(RightPoints);
+
 		// 구한 정점들이 왼쪽에 있는지 오른쪽에 있는지 확인한다.
-		FVector3 LeftPoint;
-		for (int i = 0; i < LeftPoints.size(); ++i)
-		{
-			LeftPoint += LeftPoints[i];
-		}
-		LeftPoint.x /= LeftPoints.size();
-
-		FVector3 RightPoint;
-		for (int i = 0; i < RightPoints.size(); ++i)
-		{
-			RightPoint += RightPoints[i];
-		}
-		RightPoint.x /= RightPoints.size();
-
-		if (LeftPoint.x > RightPoint.x)
-		{
-			std::swap(LeftPoints, RightPoints);
-		}
-
-
 		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
-		LineVec = FVector3(fabs(LineVec.x), fabs(LineVec.y), 0.f);
 
-		CreateSplitObject(LeftPoints).lock()->AddRelativePos(LineVec * -50.f);
-		CreateSplitObject(RightPoints).lock()->AddRelativePos(LineVec * 50.f);
+		bool LRCheck = true;
+		const FPolygon2DInfo& LeftPolygon = LeftFruit.lock()->FindComponent<CColliderPolygon2D>("Collider").lock()->GetInfo();
+
+		for (int i = 0; i < LeftPolygon.WorldPoint.size(); ++i)
+		{
+			ECCWResult::Type CCWR = CCollision::CCW2D(LineCol->GetInfo().Start, LineCol->GetInfo().End, LeftPolygon.WorldPoint[i], 0.1f);
+			if (CCWR == ECCWResult::CW)
+			{
+				LRCheck = false;
+				break;
+			}
+		}
+
+		if (!LRCheck)
+		{
+			LeftFruit.lock()->AddRelativePos(LineVec * 50);
+			RightFruit.lock()->AddRelativePos(LineVec * -50);
+		}
+		else
+		{
+			LeftFruit.lock()->AddRelativePos(LineVec * -50);
+			RightFruit.lock()->AddRelativePos(LineVec * 50);
+		}
+
 		Destroy();
 	}
 

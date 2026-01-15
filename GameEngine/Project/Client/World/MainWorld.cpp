@@ -66,8 +66,8 @@ bool CMainWorld::Init()
 	WFruit->SetRelativeScale(400.f, 400.f);
 	WFruit->SetRelativePos(0.f, 0.f);
 	//WFruit->CreateStar();
-	WFruit->CreateApplePolygon();
-	//WFruit->CreateRegularPolygon(10, 0.55);
+	//WFruit->CreateApplePolygon();
+	WFruit->CreateRegularPolygon(4, 0.5);
 	//WFruit->CreateTriangle();
 	//WFruit->CreateRectangle();
 	//std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");

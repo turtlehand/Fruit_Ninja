@@ -30,7 +30,7 @@ private:
 	// Line To Line
 public: 
 	static bool CollisionLine2DToLine2D(std::vector<FVector3>& _HitPoint, CColliderLine2D* _Src, CColliderLine2D* _Dest);
-	static ECCWResult::Type CCW2D(const FVector3& _p1, const FVector3& _p2, const FVector3& _p3);
+	static ECCWResult::Type CCW2D(const FVector3& _p1, const FVector3& _p2, const FVector3& _p3, float _EBound = 0.0000001);
 	static bool CollisionLine2DToLine2D(std::vector<FVector3>& _HitPoint, const FLine2DInfo& _Src, const FLine2DInfo& _Dest);
 private:
 	static bool PointOnLine2D(const FVector3& _LineStart, const FVector3& _LineEnd, const FVector3& _Point);
