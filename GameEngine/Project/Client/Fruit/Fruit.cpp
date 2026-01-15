@@ -42,6 +42,8 @@ bool CFruit::Init()
         MeshC->SetMaterialBaseColor(0, FVector4(1.0f, 1.0f, 1.0f, 1.0f));
         MeshC->AddTexture(0, "Apple", TEXT("Apple.png"));
         MeshC->SetBlendState(0, "AlphaBlend");
+		MeshC->SetSimulatePhysics(true);
+		MeshC->SetUseGravity(true);
         //MeshC->SetRelativeScale(100.f, 100.f);
     }
 
@@ -50,7 +52,7 @@ bool CFruit::Init()
 	if (ColliderPolygon)
 	{
 		ColliderPolygon->SetCollisionProfile("Fruit");
-		ColliderPolygon->SetDebugDraw(true);
+		ColliderPolygon->SetDebugDraw(false);
 		ColliderPolygon->SetInheritScale(true);
 		ColliderPolygon->SetEnable(true);
 
@@ -70,11 +72,17 @@ void CFruit::Begin()
 
 void CFruit::Update(double _DeltaTime)
 {
+	CGameObject::Update(_DeltaTime);
+
 	auto Mesh = m_MeshComponent.lock();
 
 	if (Mesh)
 	{
 		//Mesh->AddRelativeRotationZ(100 * _DeltaTime);
+		FVector3 CurPos = Mesh->GetWorldPos();
+
+		if (CurPos.y < -500.f)
+			Destroy();
 	}
 }
 
@@ -266,6 +274,7 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	//FVector3 LineVec = LineCol->GetAxis(EAxis::X);
 	//LineVec = FVector3(fabs(LineVec.x), fabs(LineVec.y), 0.f);
 	auto World = m_World.lock();
+	auto Mesh = m_MeshComponent.lock();
 
 	std::weak_ptr<CFruit> SplitFruit = World->CreateGameObject<CFruit>("Split Fruit");
 	auto FLM = SplitFruit.lock()->FindComponent<CDynamicMeshComponent>("Root").lock();
@@ -274,6 +283,8 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	FLM->SetRelativePos(GetRelativePos());
 	FLM->SetRelativeScale(GetRelativeScale());
 	FLM->SetRelativeRotation(GetRelativeRot());
+
+	FLM->SetPhysicsVelocity(Mesh->GetPhysicsVelocity());
 
 	for (int i = 0; i < _Points.size(); ++i)
 	{
@@ -593,7 +604,6 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 		std::weak_ptr<CGameObject> RightFruit = CreateSplitObject(RightPoints);
 
 		// 구한 정점들이 왼쪽에 있는지 오른쪽에 있는지 확인한다.
-		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
 
 		bool LRCheck = true;
 		const FPolygon2DInfo& LeftPolygon = LeftFruit.lock()->FindComponent<CColliderPolygon2D>("Collider").lock()->GetInfo();
@@ -608,15 +618,21 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 			}
 		}
 
+		std::weak_ptr<CDynamicMeshComponent> LFM = LeftFruit.lock()->FindComponent<CDynamicMeshComponent>("Root");
+		std::weak_ptr<CDynamicMeshComponent> RFM = RightFruit.lock()->FindComponent<CDynamicMeshComponent>("Root");
+
+		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
+		LineVec.y = 0.f;
+
 		if (!LRCheck)
 		{
-			LeftFruit.lock()->AddRelativePos(LineVec * 50);
-			RightFruit.lock()->AddRelativePos(LineVec * -50);
+			LFM.lock()->AddForce(LineVec * 10000);
+			RFM.lock()->AddForce(LineVec * -10000);
 		}
 		else
 		{
-			LeftFruit.lock()->AddRelativePos(LineVec * -50);
-			RightFruit.lock()->AddRelativePos(LineVec * 50);
+			LFM.lock()->AddForce(LineVec * -10000);
+			RFM.lock()->AddForce(LineVec * 10000);
 		}
 
 		Destroy();

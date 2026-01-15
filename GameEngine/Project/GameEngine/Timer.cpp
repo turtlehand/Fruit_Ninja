@@ -8,13 +8,12 @@ UINT CTimer::m_FPS;
 
 void CTimer::Init()
 {
-
     m_PrevCount = std::chrono::steady_clock::now();
 }
 
 double CTimer::Update()
 {
-
+    
     // 현재 프레임의 카운트를 구한다.
     std::chrono::steady_clock::time_point Count = std::chrono::steady_clock::now();
 

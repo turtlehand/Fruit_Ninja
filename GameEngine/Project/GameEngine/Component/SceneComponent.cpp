@@ -13,7 +13,12 @@ CSceneComponent::CSceneComponent() :
 	m_WorldPos(),
 	m_WorldScale(FVector3::One),
 	m_WorldRot(),
-	m_WorldAxis{ FVector3::Axis[EAxis::X], FVector3::Axis[EAxis::Y], FVector3::Axis[EAxis::Z], }
+	m_WorldAxis{ FVector3::Axis[EAxis::X], FVector3::Axis[EAxis::Y], FVector3::Axis[EAxis::Z], },
+	m_SimulatePhysics(false),
+	m_UseGravity(false),
+	m_Mass(1.f),
+	m_Accel(FVector3::Zero),
+	m_PhysicsVelocity(FVector3::Zero)
 {
 	SetClassType<CSceneComponent>();
 	m_ComponentType = EComponentType::Scene;
@@ -36,7 +41,13 @@ CSceneComponent::CSceneComponent(const CSceneComponent& _Ref) :
 	m_ScaleMatrix(),
 	m_RotMatrix(),
 	m_TranslateMatrix(),
-	m_WorldMatrix()
+	m_WorldMatrix(),
+
+	m_SimulatePhysics(_Ref.m_SimulatePhysics),
+	m_UseGravity(_Ref.m_UseGravity),
+	m_Mass(_Ref.m_Mass),
+	m_Accel(_Ref.m_Accel),
+	m_PhysicsVelocity(_Ref.m_PhysicsVelocity)
 {
 	m_ComponentType = EComponentType::Scene;
 
@@ -74,7 +85,13 @@ CSceneComponent::CSceneComponent(CSceneComponent&& _Ref) noexcept :
 	m_ScaleMatrix(),
 	m_RotMatrix(),
 	m_TranslateMatrix(),
-	m_WorldMatrix()
+	m_WorldMatrix(),
+
+	m_SimulatePhysics(std::move(_Ref.m_SimulatePhysics)),
+	m_UseGravity(std::move(_Ref.m_UseGravity)),
+	m_Mass(std::move(_Ref.m_Mass)),
+	m_Accel(std::move(_Ref.m_Accel)),
+	m_PhysicsVelocity(std::move(_Ref.m_PhysicsVelocity))
 {
 	m_ComponentType = EComponentType::Scene;
 
@@ -174,8 +191,23 @@ void CSceneComponent::Begin()
 	}
 }
 
-void CSceneComponent::Update(double DeltaTime)
+void CSceneComponent::Update(double _DeltaTime)
 {
+
+	// 중력 적용
+	if (m_SimulatePhysics)
+	{
+		if (m_UseGravity)
+		{
+			m_Accel.y -= GRAVITY2D;
+		}
+
+		m_PhysicsVelocity += m_Accel * _DeltaTime;
+
+		AddRelativePos(m_PhysicsVelocity * _DeltaTime);
+
+		m_Accel = FVector3::Zero;
+	}
 
 	size_t	Size = m_ChildList.size();
 
@@ -184,7 +216,7 @@ void CSceneComponent::Update(double DeltaTime)
 		auto Child = m_ChildList[i].get();
 
 		if (Child)
-			Child->Update(DeltaTime);
+			Child->Update(_DeltaTime);
 	}
 }
 
@@ -201,6 +233,7 @@ void CSceneComponent::PostUpdate(double _DeltaTime)
 		if (Child)
 			Child->PostUpdate(_DeltaTime);
 	}
+
 }
 
 void CSceneComponent::Render()

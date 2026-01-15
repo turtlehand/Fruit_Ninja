@@ -16,3 +16,5 @@
 						{\
 							SAFE_DELETE(m_Inst);\
 						}
+
+#define GRAVITY2D 400.f

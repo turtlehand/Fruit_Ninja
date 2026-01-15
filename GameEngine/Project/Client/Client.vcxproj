@@ -27,6 +27,7 @@
     </ClCompile>
     <ClCompile Include="DamageController.cpp" />
     <ClCompile Include="Fruit\Fruit.cpp" />
+    <ClCompile Include="Fruit\FruitManager.cpp" />
     <ClCompile Include="Fruit\Slash.cpp" />
     <ClCompile Include="Fruit\SlashManager.cpp" />
     <ClCompile Include="GlobalSetting.cpp" />
@@ -59,6 +60,7 @@
     <ClInclude Include="DamageController.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Fruit\Fruit.h" />
+    <ClInclude Include="Fruit\FruitManager.h" />
     <ClInclude Include="Fruit\Slash.h" />
     <ClInclude Include="Fruit\SlashManager.h" />
     <ClInclude Include="GlobalSetting.h" />

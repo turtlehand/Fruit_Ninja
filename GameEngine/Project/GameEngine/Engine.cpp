@@ -60,6 +60,8 @@ bool CEngine::Init(HINSTANCE _hInst, const TCHAR* _WindowName, int _IconID, int 
         return false;
     }
 
+    CTimer::Init();
+
     if (!CRenderManager::GetInst()->Init())
         return false;
 

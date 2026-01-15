@@ -93,6 +93,9 @@
     <ClCompile Include="Fruit\SlashManager.cpp">
       <Filter>07. Fruit</Filter>
     </ClCompile>
+    <ClCompile Include="Fruit\FruitManager.cpp">
+      <Filter>07. Fruit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -153,6 +156,9 @@
       <Filter>07. Fruit</Filter>
     </ClInclude>
     <ClInclude Include="Fruit\SlashManager.h">
+      <Filter>07. Fruit</Filter>
+    </ClInclude>
+    <ClInclude Include="Fruit\FruitManager.h">
       <Filter>07. Fruit</Filter>
     </ClInclude>
   </ItemGroup>

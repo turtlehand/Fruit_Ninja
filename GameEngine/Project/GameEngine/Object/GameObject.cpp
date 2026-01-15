@@ -82,7 +82,8 @@ bool CGameObject::Init()
 
 void CGameObject::Begin()       // Begin 함수는 오브젝트가 월드에 배치되고 처음 한번만 호출되는 함수이다.
 {
-	m_SceneComponent->Begin();
+	if(m_SceneComponent)
+		m_SceneComponent->Begin();
 
 	auto	iter = m_ObjectComponentList.begin();
 	auto	iterEnd = m_ObjectComponentList.end();

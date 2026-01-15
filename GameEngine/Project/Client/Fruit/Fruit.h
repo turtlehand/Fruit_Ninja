@@ -27,7 +27,7 @@ public:
 
 private:
 	bool                                                m_IsBegin;
-	std::weak_ptr<CDynamicMeshComponent>                       m_MeshComponent;
+	std::weak_ptr<CDynamicMeshComponent>				m_MeshComponent;
 	std::weak_ptr<CColliderPolygon2D>                   m_PolygonCollider;
 
 public:

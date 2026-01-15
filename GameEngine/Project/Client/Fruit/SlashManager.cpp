@@ -56,15 +56,20 @@ bool CSlashManager::Init()
 
 	auto	Input = World->GetInput().lock();
 
-	Input->AddBindFunction<CSlashManager>("MousePress", VK_LBUTTON, EInputType::Press, this, &CSlashManager::MousePress);
-	Input->AddBindFunction<CSlashManager>("MouseHold", VK_LBUTTON, EInputType::Hold, this, &CSlashManager::MouseHold);
-	Input->AddBindFunction<CSlashManager>("MouseRelease", VK_LBUTTON, EInputType::Release, this, &CSlashManager::MouseRelease);
+	//Input->AddBindFunction<CSlashManager>("MousePress", VK_LBUTTON, EInputType::Press, this, &CSlashManager::MousePress);
+	//Input->AddBindFunction<CSlashManager>("MouseHold", VK_LBUTTON, EInputType::Hold, this, &CSlashManager::MouseHold);
+	//Input->AddBindFunction<CSlashManager>("MouseRelease", VK_LBUTTON, EInputType::Release, this, &CSlashManager::MouseRelease);
+
 
 	return true;
 }
 
 void CSlashManager::Update(double _DeltaTime)
 {
+	auto	World = m_World.lock();
+	auto	Input = World->GetInput().lock();
+
+
 	if (m_Slash.lock()->GetEnble())
 	{
 		if (m_SlashTick)
@@ -73,8 +78,49 @@ void CSlashManager::Update(double _DeltaTime)
 			m_SlashTick = false;
 		}
 		else
+		{
 			m_SlashTick = true;
+		}
 	}
+
+	// 0.1초 동안 움직인 거리가 100이라면 베기 판정
+	FVector2 DisPos = Input->GetMouseGamePos();
+
+
+	if (!m_PrePos.empty())
+	{
+		std::list <std::pair<float, FVector2>>::iterator iter = m_PrePos.begin();
+		std::list <std::pair<float, FVector2>>::iterator iterEnd = m_PrePos.end();
+
+		for (iter; iterEnd != iter;)
+		{
+			FVector2 PrevPos = iter->second;
+			float Dis = (iter->second - Input->GetMouseGamePos()).Length();
+			float Time = iter->first + _DeltaTime;
+			iter->first = Time;
+
+			if (0.05f < Time)
+			{
+				iter = m_PrePos.erase(iter);
+				iterEnd = m_PrePos.end();
+
+				if (300.0f < Dis)
+				{
+					m_Line2DInfo.Start = FVector3(PrevPos.x, PrevPos.y, 0.f);
+					m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
+					MouseRelease();
+					break;
+				}
+
+			}
+			else
+				++iter;
+		}
+	}
+
+	m_PrePos.push_back(std::make_pair(0.f, DisPos));
+
+
 
 }
 

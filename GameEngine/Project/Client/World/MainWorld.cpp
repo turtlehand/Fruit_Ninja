@@ -11,6 +11,7 @@
 #include "Asset/Animation2D/Animation2DManager.h"
 #include "CollisionInfoManager.h"
 #include "Engine/Device.h"
+#include "Fruit/FruitManager.h"
 
 CMainWorld::CMainWorld()
 {
@@ -63,8 +64,8 @@ bool CMainWorld::Init()
 	
 	std::weak_ptr<CFruit> Fruit = CreateGameObject<CFruit>("Test Fruit");
 	auto WFruit = Fruit.lock();
-	WFruit->SetRelativeScale(400.f, 400.f);
-	WFruit->SetRelativePos(0.f, 0.f);
+	WFruit->SetRelativeScale(100.f, 100.f);
+	WFruit->SetRelativePos(0.f, 1000.f);
 	//WFruit->CreateStar();
 	//WFruit->CreateApplePolygon();
 	WFruit->CreateRegularPolygon(4, 0.5);
@@ -77,6 +78,9 @@ bool CMainWorld::Init()
 	std::weak_ptr<CSlashManager> SlashMgr = CreateGameObject<CSlashManager>("Test SlashManager");
 	auto SSlashMgr = SlashMgr.lock();
 
+
+	std::weak_ptr<CFruitManager> FruitMgr = CreateGameObject<CFruitManager>("Test FruitManager");
+	auto SFruitMgr = FruitMgr.lock();
 
 	return true;
 }
