@@ -16,25 +16,27 @@ public:
 	virtual ~CSlashManager();
 
 private:
-	//std::weak_ptr<class CCameraComponent>               m_CameraC;
+	//std::weak_ptr<class CCameraComponent>             m_CameraC;
 	std::weak_ptr<class CMeshComponent>                 m_SlashSimul;
 	FLine2DInfo                                         m_Line2DInfo;
-	std::weak_ptr<class CSlash>                         m_Slash;
-	bool                                                m_SlashTick;
+	std::weak_ptr<class CSlash>                         m_SlashObject;
 
-	std::list<std::pair<float, FVector2>>				m_PrePos;
+	FVector2											m_PrevPos;			// 이전 마우스 위치
 
-	FVector2											m_PrevPos;
-	bool												m_IsSlash;
+	// 마우스 속력
+	float												m_CriteriaSpeed;	// 기준 속력
+	bool												m_IsBeyond;		// 기준 속력을 넘어섰는지 여부
 
 public:
 	virtual bool Init() override;
 	virtual void Update(double _DeltaTime) override;
 
 private:
-	void MousePress();
-	void MouseHold();
-	void MouseRelease();
+	void Start_Simul();
+	void Update_Simul();
+	void Active_Slash();
+
+	void Slash_Mouse_Speed(double _DeltaTime);
 
 };
 

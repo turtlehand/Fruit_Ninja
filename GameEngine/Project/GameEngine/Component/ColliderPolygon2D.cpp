@@ -104,7 +104,7 @@ void CColliderPolygon2D::RemovePoint()
     UpdateMesh();
 }
 
-bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints)
+bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints)
 {
     if (_LineCol == nullptr)
         return false;
@@ -185,6 +185,135 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
 
     return true;
 }
+
+bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points)
+{
+    if (_LineCol == nullptr)
+        return false;
+
+    const FPolygon2DInfo& PolygonColInfo = GetInfo();
+    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();
+    const std::vector<FVector3>& WorldPoints = PolygonColInfo.WorldPoint;
+    int Size = (int)WorldPoints.size();
+
+    if (Size < 3) return false;
+
+    // 1. 선의 방향에 상관없이 "0번 점이 있는 쪽"을 항상 Inside(Main)로 판정
+    // 이렇게 하면 선을 어느 방향으로 긋든 Main과 New가 바뀌지 않습니다.
+    float ReferenceSide = (LineColInfo.End.x - LineColInfo.Start.x) * (WorldPoints[0].y - LineColInfo.Start.y) -
+        (LineColInfo.End.y - LineColInfo.Start.y) * (WorldPoints[0].x - LineColInfo.Start.x);
+
+    auto IsInside = [&](const FVector3& P) {
+        float Side = (LineColInfo.End.x - LineColInfo.Start.x) * (P.y - LineColInfo.Start.y) -
+            (LineColInfo.End.y - LineColInfo.Start.y) * (P.x - LineColInfo.Start.x);
+        if (ReferenceSide == 0) return Side <= 0;
+        return (ReferenceSide * Side) >= 0; // 0번 점과 부호가 같으면 Inside
+        };
+
+    // 2. 루프를 돌기 전, "안전하게 Inside에 있는 점"을 시작점으로 찾음 (Rotation)
+    // 0번 점이 Outside라면, Inside인 점을 찾아서 그 인덱스부터 시작합니다.
+    int StartIdx = -1;
+    for (int i = 0; i < Size; ++i) {
+        if (IsInside(WorldPoints[i])) {
+            StartIdx = i;
+            break;
+        }
+    }
+
+    // 모든 점이 한쪽에만 있다면 자를 필요가 없음
+    if (StartIdx == -1) return false;
+
+    // 3. 단일 패스 슬라이싱 로직
+    std::vector<FVector3> MainPoly;
+    std::vector<FVector3> NewPoly;
+    bool inMain = true;
+
+    // Size만큼 돌면서 모든 변을 검사 (StartIdx부터 한 바퀴)
+    for (int i = 0; i < Size; ++i)
+    {
+        int CurIdx = (StartIdx + i) % Size;
+        int NextIdx = (StartIdx + i + 1) % Size;
+
+        const FVector3& CurP = WorldPoints[CurIdx];
+        const FVector3& NextP = WorldPoints[NextIdx];
+
+        // 현재 점 추가
+        if (inMain) MainPoly.push_back(CurP);
+        else NewPoly.push_back(CurP);
+
+        // 교점 확인
+        std::vector<FVector3> HitPoints;
+        if (CCollision::CollisionLine2DToLine2D(HitPoints, LineColInfo, { CurP, NextP }))
+        {
+            FVector3 Intersect = HitPoints[0];
+
+            if (inMain) // Inside -> Outside (진출)
+            {
+                MainPoly.push_back(Intersect); // Main 닫기
+
+                NewPoly.clear();
+                NewPoly.push_back(Intersect); // New 시작
+                inMain = false;
+            }
+            else // Outside -> Inside (진입)
+            {
+                NewPoly.push_back(Intersect); // New 닫기
+                if (NewPoly.size() >= 3) _Points.push_back(NewPoly);
+                NewPoly.clear();
+
+                MainPoly.push_back(Intersect); // Main 다시 시작
+                inMain = true;
+            }
+        }
+    }
+
+    // 마지막 남은 MainPoly 저장
+    if (MainPoly.size() >= 3)
+        _Points.push_back(MainPoly);
+
+    // ===============================
+    // Local로 변환
+    FMatrix InvWMat = GetWorldMatrix();
+    InvWMat.Inverse();
+
+    for (int i = 0; i < _Points.size(); ++i)
+    {
+        for (int j = 0; j < _Points[i].size(); ++j)
+        {
+            FVector4 LocalPoint = InvWMat * FVector4(_Points[i][j], 1.f);
+            _Points[i][j] = FVector3(LocalPoint.x, LocalPoint.y, LocalPoint.z);
+        }
+    }
+
+    return !_Points.empty();
+}
+
+/*
+bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points)
+{
+    if (_LineCol == nullptr)
+        return false;
+
+    const FPolygon2DInfo& PolygonColInfo = GetInfo();
+    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();
+
+    // ===============================
+    // Local로 변환
+    FMatrix InvWMat = GetWorldMatrix();
+    InvWMat.Inverse();
+
+    for (int i = 0; i < _Points.size(); ++i)
+    {
+        for (int j = 0; j < _Points[i].size(); ++j)
+        {
+            FVector4 LocalPoint = InvWMat * FVector4(_Points[i][j], 1.f);
+            _Points[i][j] = FVector3(LocalPoint.x, LocalPoint.y, LocalPoint.z);
+        }
+    }
+
+    return true;
+}
+*/
 
 void CColliderPolygon2D::SetDebugDraw(bool _DebugDraw)
 {
@@ -267,19 +396,24 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
     //}
 
     // 사각형을 구성하는 4개의 꼭지점을 구한다.
-    m_Min = Pos[0];
-    m_Max = Pos[0];
 
-    // 4개의 꼭지점을 구하고 각 꼭지점의 최소 최대를 비교하여 Min,Max를 채운다.
-    for (int i = 1; i < Pos.size(); ++i)
+    if (!Pos.empty())
     {
-        // 최소값으로 지정된 x가 점의 x보다 클 경우 교체한다.
-        m_Min.x = m_Min.x > Pos[i].x ? Pos[i].x : m_Min.x;
-        m_Min.y = m_Min.y > Pos[i].y ? Pos[i].y : m_Min.y;
+        m_Min = Pos[0];
+        m_Max = Pos[0];
 
-        m_Max.x = m_Max.x < Pos[i].x ? Pos[i].x : m_Max.x;
-        m_Max.y = m_Max.y < Pos[i].y ? Pos[i].y : m_Max.y;
+        // 4개의 꼭지점을 구하고 각 꼭지점의 최소 최대를 비교하여 Min,Max를 채운다.
+        for (int i = 1; i < Pos.size(); ++i)
+        {
+            // 최소값으로 지정된 x가 점의 x보다 클 경우 교체한다.
+            m_Min.x = m_Min.x > Pos[i].x ? Pos[i].x : m_Min.x;
+            m_Min.y = m_Min.y > Pos[i].y ? Pos[i].y : m_Min.y;
+
+            m_Max.x = m_Max.x < Pos[i].x ? Pos[i].x : m_Max.x;
+            m_Max.y = m_Max.y < Pos[i].y ? Pos[i].y : m_Max.y;
+        }
     }
+
 
     m_RenderScale.x = m_WorldScale.x;
     m_RenderScale.y = m_WorldScale.y;

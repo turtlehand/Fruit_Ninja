@@ -111,6 +111,17 @@ void CMaterial::Reset()
 	}
 }
 
+const std::weak_ptr<CTexture>& CMaterial::GetTexture(int _TextureIndex)
+{
+	// 잘못된 범위
+	if (m_TextureArray.size() <= _TextureIndex)
+	{
+		return std::weak_ptr<CTexture>();
+	}
+
+	return m_TextureArray[_TextureIndex]->Texture;
+}
+
 void CMaterial::AddTexture(const std::weak_ptr<CTexture>& _Texture, int _Register, int _ShaderBufferType, int _Index)
 {
 	FMaterialTextureInfo* Origin = new FMaterialTextureInfo;

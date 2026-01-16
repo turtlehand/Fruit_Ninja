@@ -40,10 +40,10 @@ bool CFruit::Init()
     {
         MeshC->SetShader("DefaultTexture2D");
         MeshC->SetMaterialBaseColor(0, FVector4(1.0f, 1.0f, 1.0f, 1.0f));
-        MeshC->AddTexture(0, "Apple", TEXT("Apple.png"));
+        //MeshC->AddTexture(0, "Apple", TEXT("Apple.png"));
         MeshC->SetBlendState(0, "AlphaBlend");
 		MeshC->SetSimulatePhysics(true);
-		MeshC->SetUseGravity(true);
+		MeshC->SetUseGravity(false);
         //MeshC->SetRelativeScale(100.f, 100.f);
     }
 
@@ -85,6 +85,8 @@ void CFruit::Update(double _DeltaTime)
 			Destroy();
 	}
 }
+
+#pragma region CreatePolygon
 
 void CFruit::CreateRegularPolygon(int _n, float _Radius)
 {
@@ -152,6 +154,49 @@ void CFruit::CreateApplePolygon()
 	}
 }
 
+void CFruit::CreateBananaPolygon()
+{
+	auto ColliderPolygon = m_PolygonCollider.lock();
+	auto DMesh = m_MeshComponent.lock();
+
+	if (ColliderPolygon && DMesh)
+	{
+		// 이미지 바운딩 박스를 기준으로 한 정밀 좌표 (-0.5 ~ 0.5 범위)
+		FVector3 BananaPoints[] = {
+			// 1. 좌측 하단 뭉툭한 끝부분 (Bottom Tip)
+			FVector3(-0.30f, -0.30f, 0.0f),
+			FVector3(-0.28f, -0.22f, 0.0f),
+
+			// 2. 안쪽 오목한 곡선 (등 부분 - 굴곡이 완만함)
+			FVector3(-0.13f, -0.15f, 0.0f),
+			FVector3(0.0f,  -0.08f, 0.0f),
+			FVector3(0.1f,  0.05f, 0.0f),
+			FVector3(0.16f,  0.15f, 0.0f),
+			FVector3(0.16f,  0.32f, 0.0f),
+
+			// 3. 우측 상단 줄기/꼭지 (Stem - 좁고 각진 부분)
+			FVector3(0.22f,  0.34f, 0.0f),
+			FVector3(0.24f,  0.34f, 0.0f), // 꼭지 오른쪽 위 (단면)
+			FVector3(0.25f,  0.18f, 0.0f), // 꼭지 오른쪽 위 (단면)
+
+			// 4. 바깥쪽 볼록한 곡선 (배 부분 - 두께가 두꺼운 부분)
+			FVector3(0.28f,  0.15f, 0.0f),
+			FVector3(0.3f, 0.025f, 0.0f),
+			FVector3(0.25f, -0.10f, 0.0f),
+			FVector3(0.09f, -0.26f, 0.0f),
+			FVector3(0.00f, -0.3f, 0.0f),
+			FVector3(-0.15f, -0.34f, 0.0f), // 다시 시작점 근처로 연결
+			FVector3(-0.20f, -0.34f, 0.0f) // 다시 시작점 근처로 연결
+		};
+
+		for (const auto& Pt : BananaPoints)
+		{
+			ColliderPolygon->AddPoint(Pt);
+			DMesh->AddPoint(Pt);
+		}
+	}
+}
+
 void CFruit::CreatePentagon()
 {
 	auto ColliderPolygon = m_PolygonCollider.lock();
@@ -183,14 +228,15 @@ void CFruit::CreatePentagon()
 	}
 }
 
-void CFruit::CreateStar()
+void CFruit::CreateStarPolygon()
 {
 	auto ColliderPolygon = m_PolygonCollider.lock();
+	auto DMesh = m_MeshComponent.lock();
 
 	if (ColliderPolygon)
 	{
-		float OuterRadius = 1.0f;        // 바깥쪽 반지름
-		float InnerRadius = 0.382f;      // 안쪽 반지름
+		float OuterRadius = 0.5f;        // 바깥쪽 반지름
+		float InnerRadius = 0.25f;      // 안쪽 반지름
 		float StartAngle = 90.0f;        // 12시 방향 시작
 
 		// PI 상수를 미리 정의하면 편리합니다.
@@ -207,13 +253,23 @@ void CFruit::CreateStar()
 				sinf(OuterRad) * OuterRadius,
 				0.0f
 			));
+			DMesh->AddPoint(FVector3(
+				cosf(OuterRad) * OuterRadius,
+				sinf(OuterRad) * OuterRadius ,
+				0.0f
+			));
 
 			// 2. 안쪽 점 (Inner Point)
 			// 바깥쪽 점보다 36도 더 '뺀' 위치에 배치합니다.
 			float InnerRad = (StartAngle - i * 72.0f - 36.0f) * DegToRad;
 			ColliderPolygon->AddPoint(FVector3(
 				cosf(InnerRad) * InnerRadius,
-				sinf(InnerRad) * InnerRadius,
+				sinf(InnerRad) * InnerRadius ,
+				0.0f
+			));
+			DMesh->AddPoint(FVector3(
+				cosf(InnerRad) * InnerRadius,
+				sinf(InnerRad) * InnerRadius ,
 				0.0f
 			));
 		}
@@ -263,6 +319,8 @@ void CFruit::CreateRectangle()
 	}
 }
 
+#pragma endregion
+
 /// <summary>
 /// 정점 배열을 
 /// </summary>
@@ -279,6 +337,8 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	std::weak_ptr<CFruit> SplitFruit = World->CreateGameObject<CFruit>("Split Fruit");
 	auto FLM = SplitFruit.lock()->FindComponent<CDynamicMeshComponent>("Root").lock();
 	auto FLP = SplitFruit.lock()->FindComponent<CColliderPolygon2D>("Collider").lock();
+
+	//FLM->SetTexture(0,0, Mesh->GetTexture(0, 0));
 
 	FLM->SetRelativePos(GetRelativePos());
 	FLM->SetRelativeScale(GetRelativeScale());
@@ -595,10 +655,24 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 	if (!LineCol)
 		return;
 
+
+	std::vector< std::vector<FVector3>> Polygons;
+
+	if (PolygonCol->SlicePolygon2DToLine2D(LineCol, Polygons))
+	{
+		for (int i = 0; i < Polygons.size(); ++i)
+		{
+			CreateSplitObject(Polygons[i]);
+		}
+	}
+	Destroy();
+
+
+	/*
 	std::vector<FVector3> LeftPoints;
 	std::vector<FVector3> RightPoints;
-
-	if (PolygonCol->SlicePolygon2DToLine2D(LineCol, LeftPoints, RightPoints))
+	
+	if (PolygonCol->SlicePolygon2DToLine2D_LR(LineCol, LeftPoints, RightPoints))
 	{
   		std::weak_ptr<CGameObject> LeftFruit = CreateSplitObject(LeftPoints);
 		std::weak_ptr<CGameObject> RightFruit = CreateSplitObject(RightPoints);
@@ -622,20 +696,20 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 		std::weak_ptr<CDynamicMeshComponent> RFM = RightFruit.lock()->FindComponent<CDynamicMeshComponent>("Root");
 
 		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
-		LineVec.y = 0.f;
+		LineVec.y = LineVec.y;
 
 		if (!LRCheck)
 		{
-			LFM.lock()->AddForce(LineVec * 10000);
-			RFM.lock()->AddForce(LineVec * -10000);
+			LFM.lock()->AddForce(LineVec * 1000);
+			RFM.lock()->AddForce(LineVec * -1000);
 		}
 		else
 		{
-			LFM.lock()->AddForce(LineVec * -10000);
-			RFM.lock()->AddForce(LineVec * 10000);
+			LFM.lock()->AddForce(LineVec * -1000);
+			RFM.lock()->AddForce(LineVec * 1000);
 		}
 
 		Destroy();
 	}
-
+	*/
 }

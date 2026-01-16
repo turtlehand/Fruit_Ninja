@@ -17,7 +17,7 @@ public:
 	virtual ~CColliderPolygon2D();
 
 protected:
-	int m_MaxPoint = 100;
+	int m_MaxPoint = DYNAMIC_MESH_MAX_POINT;
 	std::shared_ptr<class CMesh> m_PolygonMesh;
 	FPolygon2DInfo		m_Polygon2DInfo;
 
@@ -32,7 +32,8 @@ public:
 	void AddPoint(const FVector3& _Point);
 	void SetPoint(int _Index, const FVector3& _Point);
 	void RemovePoint();
-	bool SlicePolygon2DToLine2D(const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
+	bool SlicePolygon2DToLine2D_LR(const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
+	bool SlicePolygon2DToLine2D(const class CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points);
 
 public:
 	virtual void SetDebugDraw(bool _DebugDraw) override;

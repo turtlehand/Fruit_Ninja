@@ -47,6 +47,7 @@ public:
     void SetMaterialOpacity(int _SlotIndex, float _Opacity);
 
     bool SetTexture(int _SlotIndex, int _TextureIndex, const std::weak_ptr<CTexture> _Texture);
+    const std::weak_ptr<CTexture>& GetTexture(int _SlotIndex, int _TextureIndex);
 
 
     void AddTexture(int _SlotIndex,

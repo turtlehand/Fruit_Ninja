@@ -12,6 +12,8 @@ using namespace Microsoft::WRL;
 #include <format>
 #include <vector>
 #include <list>
+#include <stack>
+#include <queue>
 #include <map>
 #include <unordered_map>
 #include <string>

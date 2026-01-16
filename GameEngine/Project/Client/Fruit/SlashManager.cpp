@@ -10,15 +10,33 @@
 #include "Asset/Shader/ShaderManager.h"
 #include "Component/ColliderLine2D.h"
 
-CSlashManager::CSlashManager()
+CSlashManager::CSlashManager() :
+	m_SlashSimul(),
+	m_Line2DInfo(),
+	m_SlashObject(),
+	m_PrevPos(),
+	m_CriteriaSpeed(400.f),
+	m_IsBeyond(false)
 {
 }
 
-CSlashManager::CSlashManager(const CSlashManager& _Ref)
+CSlashManager::CSlashManager(const CSlashManager& _Ref) :
+	m_SlashSimul(),
+	m_Line2DInfo(),
+	m_SlashObject(),
+	m_PrevPos(),
+	m_CriteriaSpeed(_Ref.m_CriteriaSpeed),
+	m_IsBeyond(false)
 {
 }
 
-CSlashManager::CSlashManager(CSlashManager&& _Ref) noexcept
+CSlashManager::CSlashManager(CSlashManager&& _Ref) noexcept :
+	m_SlashSimul(),
+	m_Line2DInfo(),
+	m_SlashObject(),
+	m_PrevPos(),
+	m_CriteriaSpeed(std::move(_Ref.m_CriteriaSpeed)),
+	m_IsBeyond(false)
 {
 }
 
@@ -30,9 +48,8 @@ bool CSlashManager::Init()
 {
 	auto	World = m_World.lock();
 
+	// 베기의 시뮬레이션
 	m_SlashSimul = CreateComponent<CMeshComponent>("SlashSimul");
-	m_Slash = World->CreateGameObject<CSlash>("Slash");
-
 
 	auto MeshC = m_SlashSimul.lock();
 	
@@ -45,21 +62,15 @@ bool CSlashManager::Init()
 		MeshC->SetEnable(false);
 	}
 
-	auto SSlash = m_Slash.lock();
+	// 실제 베기 오브젝트
+	m_SlashObject = World->CreateGameObject<CSlash>("Slash");
+
+	auto SSlash = m_SlashObject.lock();
 
 	if (SSlash)
 	{
 		SSlash->SetEnble(false);
 	}
-
-	// 플레이어에서 사용할 키를 등록한다.
-
-	auto	Input = World->GetInput().lock();
-
-	//Input->AddBindFunction<CSlashManager>("MousePress", VK_LBUTTON, EInputType::Press, this, &CSlashManager::MousePress);
-	//Input->AddBindFunction<CSlashManager>("MouseHold", VK_LBUTTON, EInputType::Hold, this, &CSlashManager::MouseHold);
-	//Input->AddBindFunction<CSlashManager>("MouseRelease", VK_LBUTTON, EInputType::Release, this, &CSlashManager::MouseRelease);
-
 
 	return true;
 }
@@ -69,72 +80,13 @@ void CSlashManager::Update(double _DeltaTime)
 	auto	World = m_World.lock();
 	auto	Input = World->GetInput().lock();
 
+	Slash_Mouse_Speed(_DeltaTime);
 
-	if (m_Slash.lock()->GetEnble())
-	{
-		m_Slash.lock()->SetEnble(false);
-
-	}
-
-	// 0.1초 동안 움직인 거리가 100이라면 베기 판정
-	FVector2 DisPos = Input->GetMouseGamePos();
-
-	//if (!m_PrePos.empty())
-	//{
-	//	std::list <std::pair<float, FVector2>>::iterator iter = m_PrePos.begin();
-	//	std::list <std::pair<float, FVector2>>::iterator iterEnd = m_PrePos.end();
-
-	//	for (iter; iterEnd != iter;)
-	//	{
-	//		FVector2 PrevPos = iter->second;
-	//		float Dis = (iter->second - Input->GetMouseGamePos()).Length();
-	//		float Time = iter->first + _DeltaTime;
-	//		iter->first = Time;
-
-	//		if (0.3f < Time)
-	//		{
-	//			iter = m_PrePos.erase(iter);
-	//			iterEnd = m_PrePos.end();
-
-	//			if (200.0f < Dis)
-	//			{
-	//				m_Line2DInfo.Start = FVector3(PrevPos.x, PrevPos.y, 0.f);
-	//				m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
-	//				MouseRelease();
-	//				m_PrePos.clear();
-
-	//				break;
-	//			}
-	//		}
-	//		else
-	//			++iter;
-	//	}
-	//}
-
-	//m_PrePos.push_back(std::make_pair(0.f, DisPos));
-
-
-	float Dis = (m_PrevPos - DisPos).Length();
-	float Speed = Dis / _DeltaTime;
-	
-	// 순간 속력이 1000이 넘어가면
-	if (!m_IsSlash && 400.f < Speed)
-	{
-		m_Line2DInfo.Start = FVector3(DisPos.x, DisPos.y, 0.f);
-		m_IsSlash = true;
-	}
-	else if (m_IsSlash && Speed < 400.f)
-	{
-		m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
-		MouseRelease();
-		m_IsSlash = false;
-	}
-
-	m_PrevPos = DisPos;
+	m_PrevPos = Input->GetMouseGamePos();
 
 }
 
-void CSlashManager::MousePress()
+void CSlashManager::Start_Simul()
 {
 	auto MeshC = m_SlashSimul.lock();
 	auto World = m_World.lock();
@@ -150,7 +102,7 @@ void CSlashManager::MousePress()
 	MeshC->SetRelativeScale(1.f, (m_Line2DInfo.End - m_Line2DInfo.Start).Length(), 1.f);
 }
 
-void CSlashManager::MouseHold()
+void CSlashManager::Update_Simul()
 {
 	auto MeshC = m_SlashSimul.lock();
 	auto World = m_World.lock();
@@ -168,11 +120,11 @@ void CSlashManager::MouseHold()
 	MeshC->SetRelativeRotationZ(FVector3::GetAngle2D( FVector3::Axis[EAxis::Y], Dir));
 }
 
-void CSlashManager::MouseRelease()
+void CSlashManager::Active_Slash()
 {
 	auto MeshC = m_SlashSimul.lock();
 	auto World = m_World.lock();
-	auto SSlash = m_Slash.lock();
+	auto SSlash = m_SlashObject.lock();
 
 
 	MeshC->SetEnable(false);
@@ -189,5 +141,40 @@ void CSlashManager::MouseRelease()
 	SSlashCollider->SetRelativePos(m_Line2DInfo.Start);
 	SSlashCollider->SetRelativeRotationZ(FVector3::GetAngle2D(FVector3::Axis[EAxis::Y], Dir));
 	SSlashCollider->SetLineDistance(Dis);
+
+}
+
+/// <summary>
+/// 마우스 속력에 따라 베기
+/// </summary>
+void CSlashManager::Slash_Mouse_Speed(double _DeltaTime)
+{
+	auto	World = m_World.lock();
+	auto	Input = World->GetInput().lock();
+
+	if (m_SlashObject.lock()->GetEnble())
+	{
+		m_SlashObject.lock()->SetEnble(false);
+	}
+
+	FVector2 DisPos = Input->GetMouseGamePos();
+
+	float Dis = (m_PrevPos - DisPos).Length();
+	float Speed = Dis / _DeltaTime;
+
+	// 순간 속력이 기준 속력을 넘어가면 베기 시작 위치 지정
+	if (!m_IsBeyond && m_CriteriaSpeed < Speed)
+	{
+		m_Line2DInfo.Start = FVector3(DisPos.x, DisPos.y, 0.f);
+		m_IsBeyond = true;
+	}
+	// 순간 속력이 기준 속력아래로 줄었다면 베기 끝 위치 지정
+	// 베기 활성화
+	else if (m_IsBeyond && Speed < m_CriteriaSpeed)
+	{
+		m_Line2DInfo.End = FVector3(DisPos.x, DisPos.y, 0.f);
+		Active_Slash();
+		m_IsBeyond = false;
+	}
 
 }

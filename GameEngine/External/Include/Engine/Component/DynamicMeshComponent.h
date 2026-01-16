@@ -35,7 +35,7 @@ protected:
 	std::weak_ptr<CAnimation2DComponent>			m_AnimComponent;
 	static std::shared_ptr<CCBufferAnimation2D>		m_EmptyAnimCBuffer;
 
-	int                                             m_MaxPoint = 100;
+	int                                             m_MaxPoint = DYNAMIC_MESH_MAX_POINT;
 
 public:
 	void AddPoint(const FVector3& _Point);
@@ -52,7 +52,7 @@ public:
 	void SetMaterialOpacity(int _SlotIndex, float _Opacity);
 
 	bool SetTexture(int _SlotIndex, int _TextureIndex, const std::weak_ptr<CTexture> _Texture);
-
+	const std::weak_ptr<CTexture>& GetTexture(int _SlotIndex, int _TextureIndex);
 
 	void AddTexture(int _SlotIndex,
 		const std::weak_ptr<CTexture>& _Texture,

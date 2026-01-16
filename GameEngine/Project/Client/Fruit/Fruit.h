@@ -37,11 +37,15 @@ public:
 
 public:
 	void CreateRegularPolygon(int _n, float _Radius);
-	void CreateApplePolygon();
 	void CreatePentagon();
-	void CreateStar();
+	void CreateStarPolygon();
 	void CreateTriangle();
 	void CreateRectangle();
+
+	void CreateApplePolygon();
+	void CreateBananaPolygon();
+
+
 private:
 	std::weak_ptr<CGameObject> CreateSplitObject(const std::vector<FVector3>& _Points);
 	bool SplitPolygon(const class CColliderPolygon2D* _PolygonCol,const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);

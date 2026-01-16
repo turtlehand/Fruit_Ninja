@@ -706,6 +706,9 @@ bool CCollision::EarClipping(const std::vector<FVector3>& _Point, std::vector<FT
 /// <returns></returns>
 bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, const FPolygon2DInfo& _Polygon, const FLine2DInfo& _Line)
 {
+	if (_Polygon.LocalPoints.empty())
+		return false;
+
 	// 하지만 들어오지 않을 경우 사각형을 구성하는 4개의 변을 만들고 선을 교차하는 변이 있는지 체크하여 검사한다.
 	// 사각형을 구상하는 4개의 꼭지점을 구한다.
 	std::vector<FVector3> Pos(_Polygon.LocalPoints.size());
@@ -713,7 +716,6 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, co
 	for (int i = 0; i < _Polygon.LocalPoints.size(); ++i)
 	{
 		Pos[i] = _Polygon.WorldPoint[i];
-		
 	}
 
 	std::vector<FLine2DInfo> Line(_Polygon.LocalPoints.size());
@@ -731,7 +733,7 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, co
 	float Dist = FLT_MAX;
 	FVector3 HitResult;
 
-	// _Line과 박스의 각 선분 충돌 검사를 한다.
+	// _Line과 폴리곤의 각 선분 충돌 검사를 한다.
 	for (int i = 0; i < _Polygon.LocalPoints.size(); ++i)
 	{
 		if (CollisionLine2DToLine2D(_HitPoint, _Line, Line[i]))

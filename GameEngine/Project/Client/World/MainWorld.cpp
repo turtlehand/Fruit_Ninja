@@ -6,6 +6,7 @@
 #include "Fruit/SlashManager.h"
 
 #include "Component/CameraComponent.h"
+#include "Component/DynamicMeshComponent.h"
 
 #include "Asset/AssetManager.h"
 #include "Asset/Animation2D/Animation2DManager.h"
@@ -64,16 +65,13 @@ bool CMainWorld::Init()
 	
 	std::weak_ptr<CFruit> Fruit = CreateGameObject<CFruit>("Test Fruit");
 	auto WFruit = Fruit.lock();
-	WFruit->SetRelativeScale(100.f, 100.f);
-	WFruit->SetRelativePos(0.f, 1000.f);
-	//WFruit->CreateStar();
-	//WFruit->CreateApplePolygon();
-	WFruit->CreateRegularPolygon(4, 0.5);
-	//WFruit->CreateTriangle();
-	//WFruit->CreateRectangle();
-	//std::weak_ptr<CSlash> Slash = CreateGameObject<CSlash>("Test Slash");
-	//auto WSlash = Slash.lock();
-	//WSlash->SetRelativePos(0.f, -100.f);
+	WFruit->CreateStarPolygon();
+
+	auto SFMesh = WFruit->FindComponent<CDynamicMeshComponent>("Root").lock();
+	//SFMesh->AddTexture(0, "Star", TEXT("Star.png"));
+	SFMesh->SetUseGravity(false);
+	SFMesh->SetRelativeScale(500.f, 500.f);
+	SFMesh->SetRelativePos(0.f, 0.f);
 
 	std::weak_ptr<CSlashManager> SlashMgr = CreateGameObject<CSlashManager>("Test SlashManager");
 	auto SSlashMgr = SlashMgr.lock();

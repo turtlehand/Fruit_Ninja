@@ -31,6 +31,8 @@ protected:
 
 public:
 
+	const std::weak_ptr<CTexture>& GetTexture(int _TextureIndex);
+
 	void AddTexture(const std::weak_ptr<CTexture>& _Texture,
 		int _Register, int _ShaderBufferType = EShaderBufferType::Pixel,
 		int _Index = 0);

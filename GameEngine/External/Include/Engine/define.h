@@ -18,3 +18,4 @@
 						}
 
 #define GRAVITY2D 400.f
+#define DYNAMIC_MESH_MAX_POINT 30

@@ -266,6 +266,14 @@ bool CMeshComponent::SetTexture(int _SlotIndex, int _TextureIndex,
 	return m_MaterialSlot[_SlotIndex]->SetTexture(_TextureIndex, _Texture);
 }
 
+const std::weak_ptr<CTexture>& CMeshComponent::GetTexture(int _SlotIndex, int _TextureIndex)
+{
+	if ((int)m_MaterialSlot.size() <= _SlotIndex)
+		return std::weak_ptr<CTexture>();
+
+	return m_MaterialSlot[_SlotIndex]->GetTexture(_TextureIndex);
+}
+
 void CMeshComponent::AddTexture(int _SlotIndex,
 	const std::weak_ptr<CTexture>& _Texture,
 	int _Register, int _ShaderBufferType,
