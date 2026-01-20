@@ -144,6 +144,8 @@ struct FVector3
 
 	float Length()	const;
 
+	float SquaredLength() const;
+
 	bool IsZero()	const;
 
 	void Normalize();

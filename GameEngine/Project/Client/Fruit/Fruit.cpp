@@ -236,7 +236,7 @@ void CFruit::CreateStarPolygon()
 	if (ColliderPolygon)
 	{
 		float OuterRadius = 0.5f;        // 바깥쪽 반지름
-		float InnerRadius = 0.25f;      // 안쪽 반지름
+		float InnerRadius = 0.2f;      // 안쪽 반지름
 		float StartAngle = 90.0f;        // 12시 방향 시작
 
 		// PI 상수를 미리 정의하면 편리합니다.
@@ -319,6 +319,37 @@ void CFruit::CreateRectangle()
 	}
 }
 
+void CFruit::CreateTestDoubleTriangle()
+{
+	auto ColliderPolygon = m_PolygonCollider.lock();
+
+	if (ColliderPolygon)
+	{
+		// [순서: 11시 -> 1시 -> 5시 -> 7시] - 시계 방향(CW)
+		ColliderPolygon->ResizePath(2);
+
+		// 첫번째 삼각형
+		// 1. 왼쪽 위 (11시 방향)
+		ColliderPolygon->AddPoint(FVector3(-0.4f, 0.5f, 0.0f), 0);
+
+		// 2. 오른쪽 위 (1시 방향)
+		ColliderPolygon->AddPoint(FVector3(0.5f, 0.5f, 0.0f), 0);
+
+		// 3. 오른쪽 아래 (5시 방향)
+		ColliderPolygon->AddPoint(FVector3(0.5f, -0.4f, 0.0f), 0);
+
+		// 두번째 삼각형
+		// 1. 오른쪽 아래(5시 방향)
+		ColliderPolygon->AddPoint(FVector3(0.4f, -0.5f, 0.0f), 1);
+
+		// 2. 왼쪽 아래 (7시 방향)
+		ColliderPolygon->AddPoint(FVector3(-0.5f, -0.5f, 0.0f), 1);
+
+		// 3. 왼쪽 위 (11시 방향)
+		ColliderPolygon->AddPoint(FVector3(-0.5f, 0.4f, 0.0f), 1);
+	}
+}
+
 #pragma endregion
 
 /// <summary>
@@ -356,6 +387,49 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	return SplitFruit;
 }
 
+/// <summary>
+/// 정점 배열을 
+/// </summary>
+/// <param name="_LeftPoints"></param>
+/// <param name="_RightPoints"></param>
+std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<std::vector<FVector3>>& _Polygons)
+{
+
+	//FVector3 LineVec = LineCol->GetAxis(EAxis::X);
+	//LineVec = FVector3(fabs(LineVec.x), fabs(LineVec.y), 0.f);
+	auto World = m_World.lock();
+	auto Mesh = m_MeshComponent.lock();
+
+	std::weak_ptr<CFruit> SplitFruit = World->CreateGameObject<CFruit>("Split Fruit");
+	auto FLM = SplitFruit.lock()->FindComponent<CDynamicMeshComponent>("Root").lock();
+	auto FLP = SplitFruit.lock()->FindComponent<CColliderPolygon2D>("Collider").lock();
+
+	FLM->SetTexture(0,0, Mesh->GetTexture(0, 0));
+
+	FLM->SetRelativePos(GetRelativePos());
+	FLM->SetRelativeScale(GetRelativeScale());
+	FLM->SetRelativeRotation(GetRelativeRot());
+
+	FLM->SetPhysicsVelocity(Mesh->GetPhysicsVelocity());
+
+	for (int i = 0; i < _Polygons.size(); ++i)
+	{
+		const std::vector<FVector3>& Points = _Polygons[i];
+		FLP->ResizePath(_Polygons.size());
+
+		for (int j = 0; j < Points.size(); ++j)
+		{
+			FLP->AddPoint(Points[j],i);
+			FLM->AddPoint(Points[j]);
+			FLP->PostUpdate(CTimer::GetDeltaTime());
+		}
+	}
+
+	return SplitFruit;
+}
+
+
+/*
 bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints)
 {
 	if (_PolygonCol == nullptr || _LineCol == nullptr)
@@ -364,7 +438,7 @@ bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CCollider
 	const FPolygon2DInfo& PolygonColInfo = _PolygonCol->GetInfo();
 	const FLine2DInfo& LineColInfo = _LineCol->GetInfo();
 
-	_LeftPoints.push_back(PolygonColInfo.WorldPoint[0]);
+	_LeftPoints.push_back(PolygonColInfo.WorldPoints[0]);
 
 	bool IsLeft = true;				// 왼쪽 정점에 넣을 차례 여부, true라면 왼쪽 정점, false라면 오른쪽 정점
 	int Size = PolygonColInfo.LocalPoints.size();
@@ -375,7 +449,7 @@ bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CCollider
 	for (int i = 0; i < Size; ++i)
 	{
 		int NextIdx = i == Size - 1 ? 0 : i + 1;
-		FLine2DInfo PolygonLineInfo = { PolygonColInfo.WorldPoint[i], PolygonColInfo.WorldPoint[NextIdx] };
+		FLine2DInfo PolygonLineInfo = { PolygonColInfo.WorldPoints[i], PolygonColInfo.WorldPoints[NextIdx] };
 
 		if (CCollision::CollisionLine2DToLine2D(HitPoint, LineColInfo, PolygonLineInfo))
 		{
@@ -385,7 +459,7 @@ bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CCollider
 				_RightPoints.push_back(HitPoint[HitIdx]);
 
 				if (NextIdx != 0)
-					_RightPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+					_RightPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
 				IsLeft = false;
 			}
 			else
@@ -393,7 +467,7 @@ bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CCollider
 				_RightPoints.push_back(HitPoint[HitIdx]);
 				_LeftPoints.push_back(HitPoint[HitIdx]);
 				if (NextIdx != 0)
-					_LeftPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+					_LeftPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
 
 				IsLeft = true;
 			}
@@ -406,11 +480,11 @@ bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CCollider
 
 			if (IsLeft)
 			{
-				_LeftPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+				_LeftPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
 			}
 			else
 			{
-				_RightPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+				_RightPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
 			}
 		}
 	}
@@ -437,7 +511,7 @@ bool CFruit::SplitPolygon(const CColliderPolygon2D* _PolygonCol, const CCollider
 
 	return true;
 }
-
+*/
 /*
 void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest)
 {
@@ -646,70 +720,74 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 
 void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest)
 {
-	if (_HitPoint.size() < 2 || !m_IsBegin)
+	if (_HitPoint.size() < 2 || !m_IsBegin || _HitPoint.size() % 2 == 1)
 		return;
 
 	CColliderLine2D* LineCol = dynamic_cast<CColliderLine2D*>(_Dest);
 	std::shared_ptr<CColliderPolygon2D> PolygonCol = m_PolygonCollider.lock();
+	auto SMesh = m_MeshComponent.lock();
 
 	if (!LineCol)
 		return;
 
 
-	std::vector< std::vector<FVector3>> Polygons;
-
+	std::vector<std::vector<FVector3>> Polygons;
+	std::vector<std::vector<FVector3>> LeftPolygon;
+	std::vector<std::vector<FVector3>> RightPolygon;
+	
 	if (PolygonCol->SlicePolygon2DToLine2D(LineCol, Polygons))
 	{
+		// 선을 Local로 변환한다.
+		FLine2DInfo LocalLine = LineCol->GetInfo();
+		FMatrix InvWMat = SMesh->GetWorldMatrix();
+		InvWMat.Inverse();
+
+		FVector4 LocalPoint = InvWMat * FVector4(LocalLine.Start, 1.f);
+		LocalLine.Start = FVector3(LocalPoint.x, LocalPoint.y, LocalPoint.z);
+
+		LocalPoint = InvWMat * FVector4(LocalLine.End, 1.f);
+		LocalLine.End = FVector3(LocalPoint.x, LocalPoint.y, LocalPoint.z);
+
 		for (int i = 0; i < Polygons.size(); ++i)
 		{
-			CreateSplitObject(Polygons[i]);
-		}
-	}
-	Destroy();
+			std::vector<FVector3>& Polygon = Polygons[i];
+			bool IsLeft = true;
 
-
-	/*
-	std::vector<FVector3> LeftPoints;
-	std::vector<FVector3> RightPoints;
-	
-	if (PolygonCol->SlicePolygon2DToLine2D_LR(LineCol, LeftPoints, RightPoints))
-	{
-  		std::weak_ptr<CGameObject> LeftFruit = CreateSplitObject(LeftPoints);
-		std::weak_ptr<CGameObject> RightFruit = CreateSplitObject(RightPoints);
-
-		// 구한 정점들이 왼쪽에 있는지 오른쪽에 있는지 확인한다.
-
-		bool LRCheck = true;
-		const FPolygon2DInfo& LeftPolygon = LeftFruit.lock()->FindComponent<CColliderPolygon2D>("Collider").lock()->GetInfo();
-
-		for (int i = 0; i < LeftPolygon.WorldPoint.size(); ++i)
-		{
-			ECCWResult::Type CCWR = CCollision::CCW2D(LineCol->GetInfo().Start, LineCol->GetInfo().End, LeftPolygon.WorldPoint[i], 0.1f);
-			if (CCWR == ECCWResult::CW)
+			for (int j = 0; j < Polygon.size(); ++j)
 			{
-				LRCheck = false;
-				break;
+				ECCWResult::Type CCWR = CCollision::CCW2D(LocalLine.Start, LocalLine.End, Polygon[j], 0.0001f);
+				if (CCWR == ECCWResult::CW)
+				{
+					IsLeft = false;
+					break;
+				}
 			}
+
+			if (IsLeft)
+			{
+				LeftPolygon.push_back(Polygons[i]);
+			}
+			else
+			{
+				RightPolygon.push_back(Polygons[i]);
+			}
+
 		}
+
+  		std::weak_ptr<CGameObject> LeftFruit = CreateSplitObject(LeftPolygon);
+		std::weak_ptr<CGameObject> RightFruit = CreateSplitObject(RightPolygon);
 
 		std::weak_ptr<CDynamicMeshComponent> LFM = LeftFruit.lock()->FindComponent<CDynamicMeshComponent>("Root");
 		std::weak_ptr<CDynamicMeshComponent> RFM = RightFruit.lock()->FindComponent<CDynamicMeshComponent>("Root");
 
 		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
-		LineVec.y = LineVec.y;
 
-		if (!LRCheck)
-		{
-			LFM.lock()->AddForce(LineVec * 1000);
-			RFM.lock()->AddForce(LineVec * -1000);
-		}
-		else
-		{
-			LFM.lock()->AddForce(LineVec * -1000);
-			RFM.lock()->AddForce(LineVec * 1000);
-		}
+		LFM.lock()->AddForce(LineVec * -500);
+		RFM.lock()->AddForce(LineVec * 500);
 
 		Destroy();
 	}
-	*/
+	
+
+	Destroy();
 }

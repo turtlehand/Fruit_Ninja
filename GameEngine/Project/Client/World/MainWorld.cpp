@@ -68,7 +68,7 @@ bool CMainWorld::Init()
 	WFruit->CreateStarPolygon();
 
 	auto SFMesh = WFruit->FindComponent<CDynamicMeshComponent>("Root").lock();
-	//SFMesh->AddTexture(0, "Star", TEXT("Star.png"));
+	SFMesh->AddTexture(0, "Star", TEXT("Star.png"));
 	SFMesh->SetUseGravity(false);
 	SFMesh->SetRelativeScale(500.f, 500.f);
 	SFMesh->SetRelativePos(0.f, 0.f);

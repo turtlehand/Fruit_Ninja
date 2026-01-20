@@ -443,6 +443,11 @@ float FVector3::Length()	const
 	return sqrtf(x * x + y * y + z * z);
 }
 
+float FVector3::SquaredLength() const
+{
+	return x * x + y * y + z * z;
+}
+
 /// <summary>
 /// 0 벡터인지 확인해주는 함수
 /// </summary>

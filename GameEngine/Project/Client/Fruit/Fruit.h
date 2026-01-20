@@ -41,6 +41,7 @@ public:
 	void CreateStarPolygon();
 	void CreateTriangle();
 	void CreateRectangle();
+	void CreateTestDoubleTriangle();
 
 	void CreateApplePolygon();
 	void CreateBananaPolygon();
@@ -48,7 +49,8 @@ public:
 
 private:
 	std::weak_ptr<CGameObject> CreateSplitObject(const std::vector<FVector3>& _Points);
-	bool SplitPolygon(const class CColliderPolygon2D* _PolygonCol,const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
+	std::weak_ptr<CGameObject> CreateSplitObject(const std::vector<std::vector<FVector3>>& _Polygons);
+	//bool SplitPolygon(const class CColliderPolygon2D* _PolygonCol,const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
 
 	void CollisionBegin(const std::vector<FVector3>& _HitPoint, class CCollider* _Dest);
 };

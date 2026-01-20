@@ -42,20 +42,46 @@ CColliderPolygon2D::~CColliderPolygon2D()
 }
 
 /// <summary>
+/// 모든 정점의 개수
+/// </summary>
+/// <param name="_Path"></param>
+/// <returns></returns>
+int CColliderPolygon2D::GetAllPointCount() const
+{
+    int Size = 0;
+    for (int i = 0; i < m_Polygon2DInfo.PathSize; ++i)
+    {
+        Size += m_Polygon2DInfo.LocalPoints[i].size();
+    }
+    return Size;
+}
+
+void CColliderPolygon2D::ResizePath(int _PathSize)
+{
+    m_Polygon2DInfo.PathSize = _PathSize;
+    m_Polygon2DInfo.LocalPoints.resize(_PathSize);
+    m_Polygon2DInfo.WorldPoints.resize(_PathSize);
+}
+
+
+/// <summary>
 /// m_Polygon2DInfo의 Points에 점을 추가하고
 /// 메쉬의 정점과 인덱스를 변경한다.
 /// </summary>
 /// <param name="_Point"></param>
-void CColliderPolygon2D::AddPoint(const FVector3& _Point)
+void CColliderPolygon2D::AddPoint(const FVector3& _Point, int _Path)
 {
     // 더 이상 추가 불가능
-    if (m_MaxPoint <= m_Polygon2DInfo.LocalPoints.size())
+    if (m_MaxPoint <= (GetAllPointCount() + 1))
     {
         assert(false);
         return;
     }
+    // 잘못된 범위
+    else if (_Path < 0 || m_Polygon2DInfo.PathSize <= _Path)
+        return;
 
-    m_Polygon2DInfo.LocalPoints.push_back(_Point);
+    m_Polygon2DInfo.LocalPoints[_Path].push_back(_Point);
 
 
     // 정점, 인덱스 버퍼 변경하기
@@ -68,7 +94,7 @@ void CColliderPolygon2D::AddPoint(const FVector3& _Point)
 /// _Index의 정점을 _Point로 수정한다.
 /// </summary>
 /// <param name="_Point"></param>
-void CColliderPolygon2D::SetPoint(int _Index, const FVector3& _Point)
+void CColliderPolygon2D::SetPoint(int _Index, const FVector3& _Point, int _Path)
 {
     // 잘못된 범위
     if (!(0 <= _Index && _Index < m_MaxPoint))
@@ -76,9 +102,12 @@ void CColliderPolygon2D::SetPoint(int _Index, const FVector3& _Point)
         assert(false);
         return;
     }
+    // 잘못된 범위
+    else if (_Path < 0 || m_Polygon2DInfo.PathSize <= _Path)
+        return;
 
     // Info를 변경한다.
-    m_Polygon2DInfo.LocalPoints[_Index] = _Point;
+    m_Polygon2DInfo.LocalPoints[_Path][_Index] = _Point;
 
     // 정점, 인덱스 버퍼 변경하기
     // 속이 빈 다각형
@@ -88,7 +117,7 @@ void CColliderPolygon2D::SetPoint(int _Index, const FVector3& _Point)
 /// <summary>
 /// 마지막 점을 삭제한다.
 /// </summary>
-void CColliderPolygon2D::RemovePoint()
+void CColliderPolygon2D::RemovePoint(int _Path)
 {
     // 잘못된 범위
     if (m_Polygon2DInfo.LocalPoints.empty())
@@ -97,13 +126,14 @@ void CColliderPolygon2D::RemovePoint()
         return;
     }
 
-    m_Polygon2DInfo.LocalPoints.pop_back();
+    m_Polygon2DInfo.LocalPoints[_Path].pop_back();
 
     // 정점, 인덱스 버퍼 변경하기
     // 속이 빈 다각형
     UpdateMesh();
 }
 
+/*
 bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints)
 {
     if (_LineCol == nullptr)
@@ -112,7 +142,7 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineC
     const FPolygon2DInfo& PolygonColInfo = GetInfo();
     const FLine2DInfo& LineColInfo = _LineCol->GetInfo();
 
-    _LeftPoints.push_back(PolygonColInfo.WorldPoint[0]);
+    _LeftPoints.push_back(PolygonColInfo.WorldPoints[0]);
 
     bool IsLeft = true;				// 왼쪽 정점에 넣을 차례 여부, true라면 왼쪽 정점, false라면 오른쪽 정점
     int Size = PolygonColInfo.LocalPoints.size();
@@ -123,7 +153,7 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineC
     for (int i = 0; i < Size; ++i)
     {
         int NextIdx = i == Size - 1 ? 0 : i + 1;
-        FLine2DInfo PolygonLineInfo = { PolygonColInfo.WorldPoint[i], PolygonColInfo.WorldPoint[NextIdx] };
+        FLine2DInfo PolygonLineInfo = { PolygonColInfo.WorldPoints[i], PolygonColInfo.WorldPoints[NextIdx] };
 
         if (CCollision::CollisionLine2DToLine2D(HitPoint, LineColInfo, PolygonLineInfo))
         {
@@ -133,7 +163,7 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineC
                 _RightPoints.push_back(HitPoint[HitIdx]);
 
                 if (NextIdx != 0)
-                    _RightPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+                    _RightPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
                 IsLeft = false;
             }
             else
@@ -141,7 +171,7 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineC
                 _RightPoints.push_back(HitPoint[HitIdx]);
                 _LeftPoints.push_back(HitPoint[HitIdx]);
                 if (NextIdx != 0)
-                    _LeftPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+                    _LeftPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
 
                 IsLeft = true;
             }
@@ -154,11 +184,11 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineC
 
             if (IsLeft)
             {
-                _LeftPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+                _LeftPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
             }
             else
             {
-                _RightPoints.push_back(PolygonColInfo.WorldPoint[NextIdx]);
+                _RightPoints.push_back(PolygonColInfo.WorldPoints[NextIdx]);
             }
         }
     }
@@ -185,7 +215,9 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D_LR(const CColliderLine2D* _LineC
 
     return true;
 }
+*/
 
+/*
 bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points)
 {
     if (_LineCol == nullptr)
@@ -193,7 +225,7 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
 
     const FPolygon2DInfo& PolygonColInfo = GetInfo();
     const FLine2DInfo& LineColInfo = _LineCol->GetInfo();
-    const std::vector<FVector3>& WorldPoints = PolygonColInfo.WorldPoint;
+    const std::vector<FVector3>& WorldPoints = PolygonColInfo.WorldPoints;
     int Size = (int)WorldPoints.size();
 
     if (Size < 3) return false;
@@ -287,15 +319,18 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
 
     return !_Points.empty();
 }
+*/
 
 /*
+
+/// _Points는 반환 값
 bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points)
 {
     if (_LineCol == nullptr)
         return false;
 
-    const FPolygon2DInfo& PolygonColInfo = GetInfo();
-    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();
+    const FPolygon2DInfo& PolygonColInfo = GetInfo();       // 다각형
+    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();   // 자를 선분
 
     // ===============================
     // Local로 변환
@@ -314,6 +349,208 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
     return true;
 }
 */
+
+bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points)
+{
+    if (_LineCol == nullptr)
+        return false;
+
+    const FPolygon2DInfo& PolygonColInfo = GetInfo();       // 다각형의 정보
+    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();   // 자를 선분의 정보
+
+    int PathSize = PolygonColInfo.PathSize;                 // 다각형의 
+    std::vector<FVector3> HitPoints;
+
+    // 다각형의 다각형 개수
+    for (int Path = 0; Path < PathSize; ++Path)
+    {
+        const std::vector<FVector3>& PolygonPoints = PolygonColInfo.WorldPoints[Path];
+        int PolygonPointSize = PolygonPoints.size();
+
+        SlicdPolygon2DToLine2D(_LineCol, PolygonPoints, _Points);
+    }
+
+    // ===============================
+    // Local로 변환
+    FMatrix InvWMat = GetWorldMatrix();
+    InvWMat.Inverse();
+
+    for (int i = 0; i < _Points.size(); ++i)
+    {
+        for (int j = 0; j < _Points[i].size(); ++j)
+        {
+            FVector4 LocalPoint = InvWMat * FVector4(_Points[i][j], 1.f);
+            _Points[i][j] = FVector3(LocalPoint.x, LocalPoint.y, LocalPoint.z);
+        }
+    }
+
+    return true;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="_LineCol"> 선분의 정보 </param>
+/// <param name="_PolygonPoints"> 다각형을 이루고 있는 정점의 정보</param>
+/// <param name="_Points">새로 생성된 다각형의 정점 정보. 결과값</param>
+/// <returns></returns>
+bool CColliderPolygon2D::SlicdPolygon2DToLine2D(const CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints, std::vector<std::vector<FVector3>>& _Points)
+{
+    if (_LineCol == nullptr || _PolygonPoints.size() < 3)
+        return false;
+
+    const FLine2DInfo& LineInfo = _LineCol->GetInfo();
+
+    int PolygonPointSize = _PolygonPoints.size();
+    int PolygonPointCount = 0;
+
+    std::vector<PolygonNode>   AllPoints;
+    std::vector<bool>       IsVisited;
+    int AllPointSize;
+
+    // 교점을 포함한 정점 배열 만든다.
+    AddInterSectionPoints(_LineCol, _PolygonPoints, AllPoints);
+    AllPointSize = AllPoints.size();
+    IsVisited.resize(AllPointSize, false);
+
+    // 교점끼리 연결된 Line을 만든다.
+    SortIntersectionPoints(_LineCol, AllPoints);
+
+    // 정점을 순회한다.
+    int StartIndex = 0;
+    int Index = 1;
+    std::vector<FVector3> Polygon;
+    Polygon.reserve(PolygonPointSize);
+    Polygon.push_back(AllPoints[0].Point);
+    IsVisited[0] = true;
+    ++PolygonPointCount;
+
+    while (true)
+    {   
+        // 처음 시작했던 정점에 도착하였다면 종료한다.
+        if (Index == StartIndex)
+        {
+            // 다각형 완료
+            // 새로 추가
+            _Points.push_back(Polygon);
+            Polygon.clear();
+
+            if (PolygonPointCount >= PolygonPointSize)
+                break;
+            
+            // 방문하지 않았던 정점까지 이동
+            while (true) 
+            {
+                StartIndex = (StartIndex + 1) % AllPointSize;
+                if (!IsVisited[StartIndex] && !AllPoints[StartIndex].IsIntersection)
+                    break;
+            };
+            Polygon.push_back(AllPoints[StartIndex].Point);
+            IsVisited[StartIndex] = true;
+            ++PolygonPointCount;
+
+            Index = (StartIndex + 1) % AllPointSize;
+            continue;
+        }
+        // 이미 다각형으로된 정점은 제외한다.
+        else if (IsVisited[Index])
+        {
+            Index = (Index + 1) % AllPointSize;
+            continue;
+        }
+
+        // 정점 저장
+        Polygon.push_back(AllPoints[Index].Point);
+
+        // 만약 교점을 만난다면 
+        if (AllPoints[Index].IsIntersection)
+        {
+            // 다른 교점으로 이동한다.
+            Index = AllPoints[Index].PairPointIndex;
+
+            // 다른 교점도 넣는다.
+            Polygon.push_back(AllPoints[Index].Point);
+        }
+        // 교점이 아니다
+        else
+        {
+            IsVisited[Index] = true;
+            ++PolygonPointCount;
+        }
+
+        Index = (Index + 1) % AllPointSize;
+    }
+
+    return !_Points.empty();
+}
+
+void CColliderPolygon2D::AddInterSectionPoints(const CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints, std::vector<PolygonNode>& _AllPoints)
+{
+    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();   // 자를 선분의 정보
+
+    int Size = _PolygonPoints.size();
+    std::vector<FVector3> HitPoint;	//교차점
+
+    PolygonNode Node;
+
+    for (int i = 0; i < Size; ++i)
+    {
+        int NextIdx = (i + 1) % Size;
+        FLine2DInfo PolygonLineInfo = { _PolygonPoints[i], _PolygonPoints[NextIdx] };
+
+        // 다음 정점을 넣는다.
+        Node.Point = _PolygonPoints[i];
+        Node.IsIntersection = false;
+
+        _AllPoints.push_back(Node);
+
+        // 교점이 있다면 교점을 먼저 넣는다.
+        if (CCollision::CollisionLine2DToLine2D(HitPoint, LineColInfo, PolygonLineInfo))
+        {
+            Node.Point = HitPoint.back();
+            Node.IsIntersection = true;
+
+            _AllPoints.push_back(Node);
+        }
+    }
+
+    if (HitPoint.size() % 2 == 1)
+        assert(false);
+
+}
+
+void CColliderPolygon2D::SortIntersectionPoints(const CColliderLine2D* _LineCol, std::vector<PolygonNode>& _AllPoints)
+{
+    std::vector<std::pair<PolygonNode*, int>> IntersectionPoints;
+    const FLine2DInfo& LineColInfo = _LineCol->GetInfo();   // 자를 선분의 정보
+
+
+    for (int i = 0; i < _AllPoints.size(); ++i)
+    {
+        if (_AllPoints[i].IsIntersection)
+            IntersectionPoints.push_back(std::make_pair(& _AllPoints[i], i));
+    }
+
+    FVector3 StartPoint = LineColInfo.Start;
+
+    // 선분의 시작위치와 교점의 거리에 따라 정렬한다.
+    std::sort(IntersectionPoints.begin(), IntersectionPoints.end(),
+        [StartPoint, &_AllPoints](std::pair<PolygonNode*, int> idxA, std::pair<PolygonNode*, int> idxB)
+        {
+            // 거리의 제곱(LengthSquared)을 비교하는 것이 성능상 더 좋습니다 (루트 연산 생략)
+            float distA = (StartPoint - idxA.first->Point).SquaredLength();
+            float distB = (StartPoint - idxB.first->Point).SquaredLength();
+            return distA < distB;
+        }
+    );
+
+    for (int i = 0; i < IntersectionPoints.size(); i = i + 2)
+    {
+        IntersectionPoints[i].first->PairPointIndex = IntersectionPoints[i + 1].second;
+        IntersectionPoints[i + 1].first->PairPointIndex = IntersectionPoints[i].second;
+    }
+
+}
 
 void CColliderPolygon2D::SetDebugDraw(bool _DebugDraw)
 {
@@ -341,6 +578,9 @@ bool CColliderPolygon2D::Init()
     //m_Polygon2DInfo.Points.push_back(FVector3(-0.5f, -0.5f, 0.f));
 
     m_Mesh = CreateMesh();
+    m_Polygon2DInfo.PathSize = 1;
+    m_Polygon2DInfo.LocalPoints.resize(1);
+    m_Polygon2DInfo.WorldPoints.resize(1);
 
     SetDebugDraw(m_DebugDraw);
     return true;
@@ -349,7 +589,6 @@ bool CColliderPolygon2D::Init()
 void CColliderPolygon2D::Update(double _DeltaTime)
 {
     CCollider::Update(_DeltaTime);
-
 }
 
 void CColliderPolygon2D::PostUpdate(double _DeltaTime)
@@ -357,7 +596,7 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
     CCollider::PostUpdate(_DeltaTime);
 
     m_Polygon2DInfo.Center = m_WorldPos;
-    m_Polygon2DInfo.WorldPoint.resize(m_Polygon2DInfo.LocalPoints.size());
+   
 
     FMatrix matWorld;
     std::vector<FVector3> Pos;
@@ -372,15 +611,24 @@ void CColliderPolygon2D::PostUpdate(double _DeltaTime)
         matWorld = m_RotMatrix * m_TranslateMatrix;
     }
 
-    // Local에 World Matrix를 곱하여 World 좌표를 추가한다.
-    for (int i = 0; i < m_Polygon2DInfo.LocalPoints.size(); ++i)
+    // 모든 경로의 정점들을 World 정점을 계산한다.
+    for (int i = 0; i < m_Polygon2DInfo.PathSize; ++i)
     {
-        FVector3 Point = m_Polygon2DInfo.LocalPoints[i];
-        FVector4 Point4 = matWorld * FVector4(Point.x,Point.y, Point.z, 1.f);
-        Point = FVector3(Point4.x, Point4.y, Point4.z);
-        Pos.push_back(Point);
-        m_Polygon2DInfo.WorldPoint[i] = Point;
+        int PointSize = m_Polygon2DInfo.LocalPoints[i].size();
+        m_Polygon2DInfo.WorldPoints[i].resize(PointSize);
+
+        // Local에 World Matrix를 곱하여 World 좌표를 추가한다.
+        for (int j = 0; j < PointSize; ++j)
+        {
+            FVector3 Point = m_Polygon2DInfo.LocalPoints[i][j];
+            FVector4 Point4 = matWorld * FVector4(Point.x, Point.y, Point.z, 1.f);
+            Point = FVector3(Point4.x, Point4.y, Point4.z);
+            Pos.push_back(Point);
+            m_Polygon2DInfo.WorldPoints[i][j] = Point;
+        }
     }
+
+
 
     //m_Polygon2DInfo.WorldTriangle.resize(m_Polygon2DInfo.LocalTriangle.size());
 
@@ -443,14 +691,14 @@ bool CColliderPolygon2D::Collision(std::vector<FVector3>& _HitPoint, std::shared
 /// <returns></returns>
 std::weak_ptr<class CMesh> CColliderPolygon2D::CreateMesh()
 {
-    // 속이 빈 사각형
+    // 속이 빈 다각형
     std::vector<FVector3> CenterFrame(m_MaxPoint, FVector3::Zero);
     std::vector<unsigned short> CenterFrameIdx((m_MaxPoint - 2) * 3, 0);
 
     for (int i = 0; i < m_Polygon2DInfo.LocalPoints.size(); ++i)
     {
-        CenterFrame[i] = m_Polygon2DInfo.LocalPoints[i];
-        CenterFrameIdx[i] = i;
+        CenterFrame[i] = FVector3::Zero;
+        CenterFrameIdx[i] = 0;
     }
 
     std::shared_ptr<CMesh> Mesh;
@@ -476,48 +724,54 @@ std::weak_ptr<class CMesh> CColliderPolygon2D::CreateMesh()
 void CColliderPolygon2D::UpdateMesh()
 {
     // 더 이상 추가 불가능
-    if (m_MaxPoint <= m_Polygon2DInfo.LocalPoints.size())
+    if (m_MaxPoint <= GetAllPointCount())
     {
         assert(false);
         return;
     }
 
-    // 삼각형 분할
-    //m_Polygon2DInfo.LocalTriangle.clear();
-    std::vector<FTriangle2DInfo> Triangle;
-    CCollision::EarClipping(m_Polygon2DInfo.LocalPoints, Triangle);
-
     // 정점, 인덱스 버퍼 변경하기
     // 속이 빈 다각형
     std::vector<FVector3> CenterFrame;
+    CenterFrame.reserve(m_MaxPoint);
     std::vector<unsigned short> CenterFrameIdx;
+    CenterFrameIdx.reserve((m_MaxPoint - 2) * 3);
 
-    for (int i = 0; i < Triangle.size(); ++i)
+    for (int Path = 0; Path < m_Polygon2DInfo.PathSize; ++Path)
     {
+        // 삼각형 분할
+        //m_Polygon2DInfo.LocalTriangle.clear();
+        std::vector<FTriangle2DInfo> Triangle;
+        CCollision::EarClipping(m_Polygon2DInfo.LocalPoints[Path], Triangle);
 
-        for (int j = 0; j < 3; ++j)
+
+        for (int i = 0; i < Triangle.size(); ++i)
         {
-            // 1. 이미 정점 리스트에 있는 점인지 확인 (중복 제거)
-            int FoundIndex = -1;
-            for (int v = 0; v < (int)CenterFrame.size(); ++v)
+
+            for (int j = 0; j < 3; ++j)
             {
-                if (CenterFrame[v] == Triangle[i].Point[j]) // 근사치 비교 권장
+                // 1. 이미 정점 리스트에 있는 점인지 확인 (중복 제거)
+                int FoundIndex = -1;
+                for (int v = 0; v < (int)CenterFrame.size(); ++v)
                 {
-                    FoundIndex = v;
-                    break;
+                    if (CenterFrame[v] == Triangle[i].Point[j]) // 근사치 비교 권장
+                    {
+                        FoundIndex = v;
+                        break;
+                    }
                 }
+
+                // 2. 새로운 점이면 Vertices에 추가
+                if (FoundIndex == -1)
+                {
+                    FoundIndex = (int)CenterFrame.size();
+                    CenterFrame.push_back(Triangle[i].Point[j]);
+                }
+
+                // 3. 인덱스 버퍼에 해당 번호 기록
+                CenterFrameIdx.push_back((unsigned short)FoundIndex);
+
             }
-
-            // 2. 새로운 점이면 Vertices에 추가
-            if (FoundIndex == -1)
-            {
-                FoundIndex = (int)CenterFrame.size();
-                CenterFrame.push_back(Triangle[i].Point[j]);
-            }
-
-            // 3. 인덱스 버퍼에 해당 번호 기록
-            CenterFrameIdx.push_back((unsigned short)FoundIndex);
-
         }
     }
 
@@ -527,3 +781,5 @@ void CColliderPolygon2D::UpdateMesh()
     m_PolygonMesh->ChangeVertexBuffer(CenterFrame.data(), sizeof(FVector3), CenterFrame.size());
     m_PolygonMesh->ChangeIndexBuffer(0, CenterFrameIdx.data(), sizeof(unsigned short), CenterFrameIdx.size());
 }
+
+

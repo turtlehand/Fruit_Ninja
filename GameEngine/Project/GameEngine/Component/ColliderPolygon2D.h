@@ -2,6 +2,14 @@
 
 #include "Collider.h"
 
+struct PolygonNode
+{
+	FVector3 Point;             // 현재 정점
+
+	bool IsIntersection = false;        // 교점 여부
+	int PairPointIndex = -1;         // 짝꿍 정점
+};
+
 class CColliderPolygon2D :
 	public CCollider
 {
@@ -27,13 +35,17 @@ public:
 		return m_Polygon2DInfo;
 	}
 
-	int GetPointCount() const { return m_Polygon2DInfo.LocalPoints.size(); }
+	int GetPointCount(int _Path) const { return m_Polygon2DInfo.LocalPoints[_Path].size(); }
+	int GetAllPointCount() const;
 
-	void AddPoint(const FVector3& _Point);
-	void SetPoint(int _Index, const FVector3& _Point);
-	void RemovePoint();
-	bool SlicePolygon2DToLine2D_LR(const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
+
+	void ResizePath(int _PathSize);
+	void AddPoint(const FVector3& _Point, int _Path = 0);
+	void SetPoint(int _Index, const FVector3& _Point, int _Path = 0);
+	void RemovePoint(int _Path = 0);
+	//bool SlicePolygon2DToLine2D_LR(const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
 	bool SlicePolygon2DToLine2D(const class CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points);
+	bool SlicdPolygon2DToLine2D(const class CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints, std::vector<std::vector<FVector3>>& _Points);
 
 public:
 	virtual void SetDebugDraw(bool _DebugDraw) override;
@@ -52,6 +64,9 @@ public:
 private:
 	std::weak_ptr<class CMesh> CreateMesh(); 
 	void UpdateMesh();
+	void AddInterSectionPoints(const class CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints,
+		std::vector<PolygonNode>& _AllPoints);
+	void SortIntersectionPoints(const class CColliderLine2D* _LineCol, std::vector<PolygonNode>& _AllPoints);
 	
 };
 

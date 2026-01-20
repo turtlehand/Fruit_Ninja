@@ -356,7 +356,7 @@ void CPlayer::MoveUp()
 	Anim->ChangeAnimation("PlayerWalk");
 
 	auto PolyCol = m_ColliderPolygon.lock();
-	FVector3 Point = PolyCol->GetInfo().LocalPoints[0];
+	FVector3 Point = PolyCol->GetInfo().LocalPoints[0][0];
 	Point.y += 50 * CTimer::GetDeltaTime();
 	PolyCol->SetPoint(0, Point);
 }
@@ -371,7 +371,7 @@ void CPlayer::MoveDown()
 	Anim->ChangeAnimation("PlayerWalk");
 
 	auto PolyCol = m_ColliderPolygon.lock();
-	FVector3 Point = PolyCol->GetInfo().LocalPoints[0];
+	FVector3 Point = PolyCol->GetInfo().LocalPoints[0][0];
 	Point.y += -50 * CTimer::GetDeltaTime();
 	//PolyCol->ChangeVertex(0, Point);
 }
