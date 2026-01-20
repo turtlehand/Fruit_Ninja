@@ -199,10 +199,10 @@ void CSceneComponent::Update(double _DeltaTime)
 	{
 		if (m_UseGravity)
 		{
-			m_Accel.y -= GRAVITY2D;
+			m_Accel.y -= GRAVITY2D * _DeltaTime;
 		}
 
-		m_PhysicsVelocity += m_Accel * _DeltaTime;
+		m_PhysicsVelocity += m_Accel;
 
 		AddRelativePos(m_PhysicsVelocity * _DeltaTime);
 

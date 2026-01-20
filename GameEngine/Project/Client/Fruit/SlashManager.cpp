@@ -14,8 +14,10 @@ CSlashManager::CSlashManager() :
 	m_SlashSimul(),
 	m_Line2DInfo(),
 	m_SlashObject(),
+	m_Duration(0.01666666666666),
+	m_Time(0),
 	m_PrevPos(),
-	m_CriteriaSpeed(400.f),
+	m_CriteriaSpeed(500.f),
 	m_IsBeyond(false)
 {
 }
@@ -72,6 +74,8 @@ bool CSlashManager::Init()
 		SSlash->SetEnble(false);
 	}
 
+	//Slash_Mouse_Click();
+
 	return true;
 }
 
@@ -80,10 +84,21 @@ void CSlashManager::Update(double _DeltaTime)
 	auto	World = m_World.lock();
 	auto	Input = World->GetInput().lock();
 
+	//if (m_SlashObject.lock()->GetEnble())
+	//{
+	//	if (!m_Tick)
+	//		m_Tick = true;
+	//	else
+	//	{
+	//		m_SlashObject.lock()->SetEnble(false);
+	//		m_Tick = false;
+	//	}
+	//}
+	if (m_SlashObject.lock()->GetEnble())
+	{
+		m_SlashObject.lock()->SetEnble(false);
+	}
 	Slash_Mouse_Speed(_DeltaTime);
-
-	m_PrevPos = Input->GetMouseGamePos();
-
 }
 
 void CSlashManager::Start_Simul()
@@ -141,7 +156,6 @@ void CSlashManager::Active_Slash()
 	SSlashCollider->SetRelativePos(m_Line2DInfo.Start);
 	SSlashCollider->SetRelativeRotationZ(FVector3::GetAngle2D(FVector3::Axis[EAxis::Y], Dir));
 	SSlashCollider->SetLineDistance(Dis);
-
 }
 
 /// <summary>
@@ -149,18 +163,21 @@ void CSlashManager::Active_Slash()
 /// </summary>
 void CSlashManager::Slash_Mouse_Speed(double _DeltaTime)
 {
+	m_Time += _DeltaTime;
+
+	if (m_Time < m_Duration)
+		return;
+
+	m_Time -= m_Duration;
+
 	auto	World = m_World.lock();
 	auto	Input = World->GetInput().lock();
-
-	if (m_SlashObject.lock()->GetEnble())
-	{
-		m_SlashObject.lock()->SetEnble(false);
-	}
 
 	FVector2 DisPos = Input->GetMouseGamePos();
 
 	float Dis = (m_PrevPos - DisPos).Length();
-	float Speed = Dis / _DeltaTime;
+
+	double Speed = Dis / m_Duration;
 
 	// 순간 속력이 기준 속력을 넘어가면 베기 시작 위치 지정
 	if (!m_IsBeyond && m_CriteriaSpeed < Speed)
@@ -177,4 +194,15 @@ void CSlashManager::Slash_Mouse_Speed(double _DeltaTime)
 		m_IsBeyond = false;
 	}
 
+	m_PrevPos = Input->GetMouseGamePos();
+}
+
+void CSlashManager::Slash_Mouse_Click()
+{
+	auto	World = m_World.lock();
+	auto	Input = World->GetInput().lock();
+
+	Input->AddBindFunction<CSlashManager>("Start_Simul", VK_LBUTTON, EInputType::Press, this, &CSlashManager::Start_Simul);
+	Input->AddBindFunction<CSlashManager>("Update_Simul", VK_LBUTTON, EInputType::Hold, this, &CSlashManager::Update_Simul);
+	Input->AddBindFunction<CSlashManager>("Active_Slash", VK_LBUTTON, EInputType::Release, this, &CSlashManager::Active_Slash);
 }

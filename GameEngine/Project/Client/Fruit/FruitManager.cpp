@@ -10,6 +10,8 @@
 #include "Component/DynamicMeshComponent.h"
 #include "Fruit.h"
 
+#include "Timer.h"
+
 
 #include<cstdlib>
 #include<ctime>
@@ -140,5 +142,5 @@ void CFruitManager::Random_Transform(std::weak_ptr<class CSceneComponent> _SC)
 
 	SC->SetRelativeScale(m_FruitScale, m_FruitScale);
 	SC->SetRelativePos(Random * 500, -300.f);
-	SC->AddForce(FVector3(10000.f * -Random, 33000.f, 0.f));
+	SC->AddForce(FVector3(400.f * -Random, 600.f, 0.f));
 }

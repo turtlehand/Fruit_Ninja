@@ -23,7 +23,12 @@ private:
 
 	FVector2											m_PrevPos;			// 이전 마우스 위치
 
+	// 검사 속도											
+	double												m_Duration;
+	double												m_Time;
+
 	// 마우스 속력
+	bool												m_Tick;
 	float												m_CriteriaSpeed;	// 기준 속력
 	bool												m_IsBeyond;		// 기준 속력을 넘어섰는지 여부
 
@@ -37,6 +42,7 @@ private:
 	void Active_Slash();
 
 	void Slash_Mouse_Speed(double _DeltaTime);
+	void Slash_Mouse_Click();
 
 };
 

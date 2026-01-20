@@ -27,8 +27,8 @@ public:
 
 protected:
 	std::weak_ptr<CShader>							m_Shader;
+	std::vector<std::vector<FVector3>>				m_VertexPath;
 	std::shared_ptr<CMesh>							m_DynamicMesh;
-	std::vector<FVector3>							m_Vertex;
 	std::vector<std::shared_ptr<CMaterial>>			m_MaterialSlot;
 	std::shared_ptr<CCBufferTransform>				m_TransformCBuffer;
 
@@ -36,12 +36,18 @@ protected:
 	static std::shared_ptr<CCBufferAnimation2D>		m_EmptyAnimCBuffer;
 
 	int                                             m_MaxPoint = DYNAMIC_MESH_MAX_POINT;
+	int												m_PathSize;
 
 public:
-	void AddPoint(const FVector3& _Point);
-	void SetPoint(int _Index, const FVector3& _Point);
-	void RemovePoint();
+	int GetVertexCount(int _Path) const { return m_VertexPath[_Path].size(); }
+	int GetAllVertexCount() const;
 
+	void ResizePath(int _PathSize);
+	void AddVertex(const FVector3& _Point, int _Path = 0);
+	void SetVertex(int _Index, const FVector3& _Point, int _Path = 0);
+	void RemoveVertex(int _Path = 0);
+
+public:
 	void SetShader(const std::weak_ptr<CShader>& _Shader);
 	void SetShader(const std::string& _Name);
 

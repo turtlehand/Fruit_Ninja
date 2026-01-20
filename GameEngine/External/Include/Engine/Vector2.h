@@ -365,6 +365,11 @@ struct FVector2
 		return sqrtf(x * x + y * y);
 	}
 
+	float SquaredLength() const
+	{
+		return x * x + y * y;
+	}
+
 	// x / 크기, y / 크기
 	void Normalize()
 	{

@@ -31,7 +31,7 @@ CDynamicMeshComponent::CDynamicMeshComponent()
 CDynamicMeshComponent::CDynamicMeshComponent(const CDynamicMeshComponent& _Ref) :
 	CSceneComponent(_Ref),
 	m_Shader(_Ref.m_Shader),
-	m_Vertex(_Ref.m_Vertex),
+	m_VertexPath(_Ref.m_VertexPath),
 	m_TransformCBuffer(_Ref.m_TransformCBuffer->Clone())
 {
 	CreateDynamicMesh();
@@ -42,7 +42,7 @@ CDynamicMeshComponent::CDynamicMeshComponent(const CDynamicMeshComponent& _Ref) 
 CDynamicMeshComponent::CDynamicMeshComponent(CDynamicMeshComponent&& _Ref) noexcept :
 	CSceneComponent(_Ref),
 	m_Shader(_Ref.m_Shader),
-	m_Vertex(std::move(_Ref.m_Vertex)),
+	m_VertexPath(std::move(_Ref.m_VertexPath)),
 	m_TransformCBuffer(_Ref.m_TransformCBuffer->Clone())
 {
 	//m_DynamicMesh = std::move(_Ref.m_DynamicMesh);
@@ -56,6 +56,22 @@ CDynamicMeshComponent::CDynamicMeshComponent(CDynamicMeshComponent&& _Ref) noexc
 
 CDynamicMeshComponent::~CDynamicMeshComponent()
 {
+}
+
+int CDynamicMeshComponent::GetAllVertexCount() const
+{
+	int Size = 0;
+	for (int i = 0; i < m_PathSize; ++i)
+	{
+		Size += m_VertexPath[i].size();
+	}
+	return Size;
+}
+
+void CDynamicMeshComponent::ResizePath(int _PathSize)
+{
+	m_PathSize = _PathSize;
+	m_VertexPath.resize(_PathSize);
 }
 
 /*
@@ -116,24 +132,19 @@ void CDynamicMeshComponent::SetMesh(const std::string& _Name)
 }
 */
 
-/// <summary>
-/// m_Polygon2DInfo의 Points에 점을 추가하고
-/// 메쉬의 정점과 인덱스를 변경한다.
-/// </summary>
-/// <param name="_Point"></param>
-void CDynamicMeshComponent::AddPoint(const FVector3& _Point)
+void CDynamicMeshComponent::AddVertex(const FVector3& _Point, int _Path)
 {
 	// 더 이상 추가 불가능
-	if (m_MaxPoint <= m_Vertex.size())
+	if (m_MaxPoint <= (GetAllVertexCount() + 1))
 	{
 		assert(false);
 		return;
 	}
+	// 잘못된 범위
+	else if (_Path < 0 || m_PathSize <= _Path)
+		return;
 
-	FVector2 UV = GetUVFromPos(_Point);
-
-	m_Vertex.push_back(_Point);
-
+	m_VertexPath[_Path].push_back(_Point);
 
 	// 정점, 인덱스 버퍼 변경하기
 	// 속이 빈 다각형
@@ -145,7 +156,7 @@ void CDynamicMeshComponent::AddPoint(const FVector3& _Point)
 /// _Index의 정점을 _Point로 수정한다.
 /// </summary>
 /// <param name="_Point"></param>
-void CDynamicMeshComponent::SetPoint(int _Index, const FVector3& _Point)
+void CDynamicMeshComponent::SetVertex(int _Index, const FVector3& _Point, int _Path)
 {
 	// 잘못된 범위
 	if (!(0 <= _Index && _Index < m_MaxPoint))
@@ -153,9 +164,12 @@ void CDynamicMeshComponent::SetPoint(int _Index, const FVector3& _Point)
 		assert(false);
 		return;
 	}
+	// 잘못된 범위
+	else if (_Path < 0 || m_PathSize <= _Path)
+		return;
 
 	// Info를 변경한다.
-	m_Vertex[_Index] = _Point;
+	m_VertexPath[_Path][_Index] = _Point;
 
 	// 정점, 인덱스 버퍼 변경하기
 	// 속이 빈 다각형
@@ -165,16 +179,16 @@ void CDynamicMeshComponent::SetPoint(int _Index, const FVector3& _Point)
 /// <summary>
 /// 마지막 점을 삭제한다.
 /// </summary>
-void CDynamicMeshComponent::RemovePoint()
+void CDynamicMeshComponent::RemoveVertex(int _Path)
 {
 	// 잘못된 범위
-	if (m_Vertex.empty())
+	if (m_VertexPath.empty())
 	{
 		assert(false);
 		return;
 	}
 
-	m_Vertex.pop_back();
+	m_VertexPath[_Path].pop_back();
 
 	// 정점, 인덱스 버퍼 변경하기
 	// 속이 빈 다각형
@@ -202,6 +216,8 @@ bool CDynamicMeshComponent::Init()
 {
 	CSceneComponent::Init();
 	CreateDynamicMesh();
+	UpdateMesh();
+	ResizePath(1);
 	m_TransformCBuffer.reset(new CCBufferTransform);
 	m_TransformCBuffer->Init();
 	return true;
@@ -486,14 +502,8 @@ void CDynamicMeshComponent::ClearEmptyAnimCBuffer()
 std::weak_ptr<class CMesh> CDynamicMeshComponent::CreateDynamicMesh()
 {
 	// 속이 빈 사각형
-	std::vector<FVertexTex> CenterFrame(m_MaxPoint);
+	std::vector<FVertexTex> CenterFrame(m_MaxPoint, FVertexTex());
 	std::vector<unsigned short> CenterFrameIdx((m_MaxPoint - 2) * 3, 0);
-
-	for (int i = 0; i < m_Vertex.size(); ++i)
-	{
-		CenterFrame[i] = FVertexTex(m_Vertex[i], GetUVFromPos(m_Vertex[i]));
-		CenterFrameIdx[i] = i;
-	}
 
 	std::shared_ptr<CMesh> Mesh;
 
@@ -537,71 +547,68 @@ std::weak_ptr<class CMesh> CDynamicMeshComponent::CreateDynamicMesh()
 void CDynamicMeshComponent::UpdateMesh()
 {
 	// 더 이상 추가 불가능
-	if (m_MaxPoint <= m_Vertex.size())
+	if (m_MaxPoint <= GetAllVertexCount())
 	{
 		assert(false);
 		return;
 	}
 
-	// 삼각형 분할
-	//m_Polygon2DInfo.LocalTriangle.clear();
-	std::vector<FTriangle2DInfo> Triangle;
-	CCollision::EarClipping(m_Vertex, Triangle);
-
 	// 정점, 인덱스 버퍼 변경하기
 	// 속이 빈 다각형
 	std::vector<FVertexTex> CenterFrame;
+	CenterFrame.reserve(m_MaxPoint);
 	std::vector<unsigned short> CenterFrameIdx;
+	CenterFrameIdx.reserve((m_MaxPoint - 2) * 3);
 
-	for (int i = 0; i < Triangle.size(); ++i)
+	for (int Path = 0; Path < m_PathSize; ++Path)
 	{
+		// 삼각형 분할
+		//m_Polygon2DInfo.LocalTriangle.clear();
+		std::vector<FTriangle2DInfo> Triangle;
+		CCollision::EarClipping(m_VertexPath[Path], Triangle);
 
-		for (int j = 0; j < 3; ++j)
+		for (int i = 0; i < Triangle.size(); ++i)
 		{
-			// 1. 이미 정점 리스트에 있는 점인지 확인 (중복 제거)
-			int FoundIndex = -1;
-			for (int v = 0; v < (int)CenterFrame.size(); ++v)
+
+			for (int j = 0; j < 3; ++j)
 			{
-				if (CenterFrame[v].Pos == Triangle[i].Point[j]) // 근사치 비교 권장
+				// 1. 이미 정점 리스트에 있는 점인지 확인 (중복 제거)
+				int FoundIndex = -1;
+				for (int v = 0; v < (int)CenterFrame.size(); ++v)
 				{
-					FoundIndex = v;
-					break;
+					if (CenterFrame[v].Pos == Triangle[i].Point[j]) // 근사치 비교 권장
+					{
+						FoundIndex = v;
+						break;
+					}
 				}
+
+				// 2. 새로운 점이면 Vertices에 추가
+				if (FoundIndex == -1)
+				{
+					FoundIndex = (int)CenterFrame.size();
+					CenterFrame.push_back(FVertexTex(Triangle[i].Point[j], GetUVFromPos(Triangle[i].Point[j])));
+				}
+
+				// 3. 인덱스 버퍼에 해당 번호 기록
+				CenterFrameIdx.push_back((unsigned short)FoundIndex);
+
 			}
-
-			// 2. 새로운 점이면 Vertices에 추가
-			if (FoundIndex == -1)
-			{
-				FoundIndex = (int)CenterFrame.size();
-				CenterFrame.push_back(FVertexTex(Triangle[i].Point[j], GetUVFromPos(Triangle[i].Point[j])));
-			}
-
-			// 3. 인덱스 버퍼에 해당 번호 기록
-			CenterFrameIdx.push_back((unsigned short)FoundIndex);
-
 		}
 	}
 
 	CenterFrame.resize(m_MaxPoint);
 	CenterFrameIdx.resize((m_MaxPoint - 2) * 3);
 
-	m_DynamicMesh->ChangeVertexBuffer(CenterFrame.data(), sizeof(FVector3), CenterFrame.size());
+	m_DynamicMesh->ChangeVertexBuffer(CenterFrame.data(), sizeof(FVertexTex), CenterFrame.size());
 	m_DynamicMesh->ChangeIndexBuffer(0, CenterFrameIdx.data(), sizeof(unsigned short), CenterFrameIdx.size());
 }
-
-
 /// <summary>
 /// 입력된 삼각형을 이용하여 메쉬의 정점, 인덱스를 변경한다.
 /// </summary>
 /// <param name="_Triangle"></param>
 void CDynamicMeshComponent::UpdateMesh(const std::vector<FTriangle2DInfo>& _Triangle)
 {
-	// 더 이상 추가 불가능
-	if (m_MaxPoint <= m_Vertex.size())
-	{
-		assert(false);
-		return;
-	}
 
 	// 정점, 인덱스 버퍼 변경하기
 	// 속이 빈 다각형

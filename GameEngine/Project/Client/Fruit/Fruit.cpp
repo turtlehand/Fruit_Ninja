@@ -43,7 +43,7 @@ bool CFruit::Init()
         //MeshC->AddTexture(0, "Apple", TEXT("Apple.png"));
         MeshC->SetBlendState(0, "AlphaBlend");
 		MeshC->SetSimulatePhysics(true);
-		MeshC->SetUseGravity(false);
+		MeshC->SetUseGravity(true);
         //MeshC->SetRelativeScale(100.f, 100.f);
     }
 
@@ -52,7 +52,7 @@ bool CFruit::Init()
 	if (ColliderPolygon)
 	{
 		ColliderPolygon->SetCollisionProfile("Fruit");
-		ColliderPolygon->SetDebugDraw(true);
+		ColliderPolygon->SetDebugDraw(false);
 		ColliderPolygon->SetInheritScale(true);
 		ColliderPolygon->SetEnable(true);
 
@@ -115,7 +115,7 @@ void CFruit::CreateRegularPolygon(int _n, float _Radius)
 			FVector3 Point(x, y, 0.0f);
 
 			ColliderPolygon->AddPoint(Point);
-			DMesh->AddPoint(Point);
+			DMesh->AddVertex(Point);
 		}
 	}
 }
@@ -149,7 +149,7 @@ void CFruit::CreateApplePolygon()
 		for (const auto& Pt : ApplePoints)
 		{
 			ColliderPolygon->AddPoint(Pt);
-			DMesh->AddPoint(Pt);
+			DMesh->AddVertex(Pt);
 		}
 	}
 }
@@ -192,7 +192,7 @@ void CFruit::CreateBananaPolygon()
 		for (const auto& Pt : BananaPoints)
 		{
 			ColliderPolygon->AddPoint(Pt);
-			DMesh->AddPoint(Pt);
+			DMesh->AddVertex(Pt);
 		}
 	}
 }
@@ -208,23 +208,23 @@ void CFruit::CreatePentagon()
 
 		// 1. 꼭대기 (12시 방향)
 		ColliderPolygon->AddPoint(FVector3(0.0f, 1.0f, 0.0f));
-		DMesh->AddPoint(FVector3(0.0f, 1.0f, 0.0f));
+		DMesh->AddVertex(FVector3(0.0f, 1.0f, 0.0f));
 
 		// 2. 오른쪽 위 (2시 방향) - x가 양수
 		ColliderPolygon->AddPoint(FVector3(0.9511f, 0.3090f, 0.0f));
-		DMesh->AddPoint(FVector3(0.9511f, 0.3090f, 0.0f));
+		DMesh->AddVertex(FVector3(0.9511f, 0.3090f, 0.0f));
 
 		// 3. 오른쪽 아래 (5시 방향)
 		ColliderPolygon->AddPoint(FVector3(0.5878f, -0.8090f, 0.0f));
-		DMesh->AddPoint(FVector3(0.5878f, -0.8090f, 0.0f));
+		DMesh->AddVertex(FVector3(0.5878f, -0.8090f, 0.0f));
 
 		// 4. 왼쪽 아래 (7시 방향)
 		ColliderPolygon->AddPoint(FVector3(-0.5878f, -0.8090f, 0.0f));
-		DMesh->AddPoint(FVector3(-0.5878f, -0.8090f, 0.0f));
+		DMesh->AddVertex(FVector3(-0.5878f, -0.8090f, 0.0f));
 
 		// 5. 왼쪽 위 (10시 방향) - x가 음수
 		ColliderPolygon->AddPoint(FVector3(-0.9511f, 0.3090f, 0.0f));
-		DMesh->AddPoint(FVector3(-0.9511f, 0.3090f, 0.0f));
+		DMesh->AddVertex(FVector3(-0.9511f, 0.3090f, 0.0f));
 	}
 }
 
@@ -250,12 +250,12 @@ void CFruit::CreateStarPolygon()
 			float OuterRad = (StartAngle - i * 72.0f) * DegToRad;
 			ColliderPolygon->AddPoint(FVector3(
 				cosf(OuterRad) * OuterRadius,
-				sinf(OuterRad) * OuterRadius,
+				sinf(OuterRad) * OuterRadius - 0.05f,
 				0.0f
 			));
-			DMesh->AddPoint(FVector3(
+			DMesh->AddVertex(FVector3(
 				cosf(OuterRad) * OuterRadius,
-				sinf(OuterRad) * OuterRadius ,
+				sinf(OuterRad) * OuterRadius - 0.05f,
 				0.0f
 			));
 
@@ -264,12 +264,12 @@ void CFruit::CreateStarPolygon()
 			float InnerRad = (StartAngle - i * 72.0f - 36.0f) * DegToRad;
 			ColliderPolygon->AddPoint(FVector3(
 				cosf(InnerRad) * InnerRadius,
-				sinf(InnerRad) * InnerRadius ,
+				sinf(InnerRad) * InnerRadius - 0.05f,
 				0.0f
 			));
-			DMesh->AddPoint(FVector3(
+			DMesh->AddVertex(FVector3(
 				cosf(InnerRad) * InnerRadius,
-				sinf(InnerRad) * InnerRadius ,
+				sinf(InnerRad) * InnerRadius - 0.05f,
 				0.0f
 			));
 		}
@@ -380,7 +380,7 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<FVector3>
 	for (int i = 0; i < _Points.size(); ++i)
 	{
 		FLP->AddPoint(_Points[i]);
-		FLM->AddPoint(_Points[i]);
+		FLM->AddVertex(_Points[i]);
 		FLP->PostUpdate(CTimer::GetDeltaTime());
 	}
 	
@@ -412,15 +412,17 @@ std::weak_ptr<CGameObject> CFruit::CreateSplitObject(const std::vector<std::vect
 
 	FLM->SetPhysicsVelocity(Mesh->GetPhysicsVelocity());
 
+	FLP->ResizePath(_Polygons.size());
+	FLM->ResizePath(_Polygons.size());
+
 	for (int i = 0; i < _Polygons.size(); ++i)
 	{
 		const std::vector<FVector3>& Points = _Polygons[i];
-		FLP->ResizePath(_Polygons.size());
 
 		for (int j = 0; j < Points.size(); ++j)
 		{
-			FLP->AddPoint(Points[j],i);
-			FLM->AddPoint(Points[j]);
+			FLP->AddPoint(Points[j], i);
+			FLM->AddVertex(Points[j], i);
 			FLP->PostUpdate(CTimer::GetDeltaTime());
 		}
 	}
@@ -782,12 +784,9 @@ void CFruit::CollisionBegin(const std::vector<FVector3>& _HitPoint, class CColli
 
 		FVector3 LineVec = LineCol->GetAxis(EAxis::X);
 
-		LFM.lock()->AddForce(LineVec * -500);
-		RFM.lock()->AddForce(LineVec * 500);
+		LFM.lock()->AddForce(LineVec * -10);
+		RFM.lock()->AddForce(LineVec * 10);
 
 		Destroy();
 	}
-	
-
-	Destroy();
 }
