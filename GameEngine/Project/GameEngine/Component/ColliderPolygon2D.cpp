@@ -302,13 +302,17 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
             _Points.push_back(Polygon);
             Polygon.clear();
 
+            // 모든 정점을 추가하였다면 종료
             if (PolygonPointCount >= PolygonPointSize)
                 break;
             
-            // 방문하지 않았던 정점까지 이동
+            // 다른 정점으로
             while (true) 
             {
                 StartIndex = (StartIndex + 1) % AllPointSize;
+                
+                // 사용하지 않았어야 함
+                // 교점이 아니어야 함
                 if (!IsVisited[StartIndex] && !AllPoints[StartIndex].IsIntersection)
                     break;
             };
@@ -319,14 +323,14 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
             Index = (StartIndex + 1) % AllPointSize;
             continue;
         }
-        // 이미 다각형으로된 정점은 제외한다.
+        // 이미 사용한 정점은 제외한다.
         else if (IsVisited[Index])
         {
             Index = (Index + 1) % AllPointSize;
             continue;
         }
 
-        // 정점 저장
+        // 현재 다각형 경로에 정점 저장
         Polygon.push_back(AllPoints[Index].Point);
 
         // 만약 교점을 만난다면 
@@ -351,6 +355,14 @@ bool CColliderPolygon2D::SlicePolygon2DToLine2D(const CColliderLine2D* _LineCol,
     return !_Points.empty();
 }
 
+
+/// <summary>
+/// AllPoints에 교점을 포함한 다각형 경로를 저장한다.
+/// O(N)
+/// </summary> 
+/// <param name="_LineCol">자를 선분</param>
+/// <param name="_PolygonPoints">원본 다각형 경로</param>
+/// <param name="_AllPoints">교점 포함 다각형 경로</param>
 void CColliderPolygon2D::AddInterSectionPoints(const CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints, std::vector<PolygonNode>& _AllPoints)
 {
     const FLine2DInfo& LineColInfo = _LineCol->GetInfo();   // 자를 선분의 정보
@@ -386,6 +398,12 @@ void CColliderPolygon2D::AddInterSectionPoints(const CColliderLine2D* _LineCol, 
 
 }
 
+/// <summary>
+/// 교점의 짝꿍을 찾는 함수
+/// 교점의 최대 개수가 다각형의 최대 개수와 동일하므로 O(nLogN)
+/// </summary>
+/// <param name="_LineCol">자를 선분</param>
+/// <param name="_AllPoints">교점 포함 다각형 정점</param>
 void CColliderPolygon2D::SortIntersectionPoints(const CColliderLine2D* _LineCol, std::vector<PolygonNode>& _AllPoints)
 {
     std::vector<std::pair<PolygonNode*, int>> IntersectionPoints;
