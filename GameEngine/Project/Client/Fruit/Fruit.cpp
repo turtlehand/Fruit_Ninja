@@ -52,7 +52,7 @@ bool CFruit::Init()
 	if (ColliderPolygon)
 	{
 		ColliderPolygon->SetCollisionProfile("Fruit");
-		ColliderPolygon->SetDebugDraw(false);
+		ColliderPolygon->SetDebugDraw(true);
 		ColliderPolygon->SetInheritScale(true);
 		ColliderPolygon->SetEnable(true);
 

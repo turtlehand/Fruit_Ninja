@@ -45,7 +45,7 @@ public:
 	void RemovePoint(int _Path = 0);
 	//bool SlicePolygon2DToLine2D_LR(const class CColliderLine2D* _LineCol, std::vector<FVector3>& _LeftPoints, std::vector<FVector3>& _RightPoints);
 	bool SlicePolygon2DToLine2D(const class CColliderLine2D* _LineCol, std::vector<std::vector<FVector3>>& _Points);
-	bool SlicdPolygon2DToLine2D(const class CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints, std::vector<std::vector<FVector3>>& _Points);
+	bool SlicePolygon2DToLine2D(const class CColliderLine2D* _LineCol, const std::vector<FVector3>& _PolygonPoints, std::vector<std::vector<FVector3>>& _Points);
 
 public:
 	virtual void SetDebugDraw(bool _DebugDraw) override;

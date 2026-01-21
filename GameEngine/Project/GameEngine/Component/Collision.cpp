@@ -624,7 +624,8 @@ bool CCollision::EarClipping(const std::vector<FVector3>& _Point, std::vector<FT
 {
 	int Size = _Point.size();
 	if (Size < 3) return false;
-
+	
+	// 정점
 	std::list<FVector3> TriIndex;
 	for (int i = 0; i < Size; ++i)
 		TriIndex.push_back(_Point[i]);
@@ -635,7 +636,8 @@ bool CCollision::EarClipping(const std::vector<FVector3>& _Point, std::vector<FT
 	// [추가] 무한 루프 방지를 위한 연속 실패 카운터
 	int SkipCount = 0;
 
-	while (TriIndex.size() > 3)
+	// 남은 정점이 3개 이상일 때만
+	while (3 <= TriIndex.size())
 	{
 		// [추가] 모든 점을 한 번씩 다 찔러봤는데 하나도 못 잘랐다면 (일직선 상황 등)
 		if (SkipCount >= TriIndex.size())
@@ -659,39 +661,21 @@ bool CCollision::EarClipping(const std::vector<FVector3>& _Point, std::vector<FT
 		std::vector<FVector3> Temp;
 		ECCWResult::Type CCWR = CCW2D(Tri.Point[0], Tri.Point[1], Tri.Point[2]);
 
-		// 1. 볼록(CW/CCW 판정은 엔진 기준에 맞춤)하며 
+		// 1. 반시계 방향으로 놓여있지 않음
 		// 2. 내부에 다른 점이 없는 '귀'인 경우
-		if (CCWR == ECCWResult::CW && !CollisionTriangle2DToPoint2Ds(Temp, Tri, TriIndex))
+		if (CCWR != ECCWResult::CCW && !CollisionTriangle2DToPoint2Ds(Temp, Tri, TriIndex))
 		{
 			_Triangle.push_back(Tri);
 			iter = TriIndex.erase(it1); // 가운데 점(귀의 끝점) 제거
 			SkipCount = 0;              // 자르기 성공했으므로 카운트 초기화
 		}
-		else if (CCWR == ECCWResult::None)
-		{
-			_Triangle.push_back(Tri);
-			iter = TriIndex.erase(it1); // 가운데 점(귀의 끝점) 제거
-			SkipCount = 0;              // 자르기 성공했으므로 카운트 초기화
-		}
+
 		else
 		{
 			++iter;           // 다음 점으로 이동
 			++SkipCount;      // 자르기 실패 카운트 증가
 		}
 	}
-
-	// 마지막 남은 3개 처리
-	if (TriIndex.size() == 3)
-	{
-		auto it = TriIndex.begin();
-		Tri.Point[0] = *it++;
-		Tri.Point[1] = *it++;
-		Tri.Point[2] = *it;
-
-		if (CCW2D(Tri.Point[0], Tri.Point[1], Tri.Point[2]) == ECCWResult::CW)
-			_Triangle.push_back(Tri);
-	}
-
 
 	return true;
 }
@@ -769,6 +753,28 @@ bool CCollision::CollisionPolygon2DToLine2D(std::vector<FVector3>& _HitPoint, co
 /// <returns></returns>
 bool CCollision::CollisionTriangle2DToPoint2D(std::vector<FVector3>& _HitPoint, const FTriangle2DInfo& _Triangle, const FVector3& _Point)
 {
+	// AABB로 먼저 판단한다.
+	FVector3 Max = _Triangle.Point[0];
+	FVector3 Min = _Triangle.Point[0];
+
+	for (int i = 1; i < 3; ++i)
+	{
+		if (Max.x < _Triangle.Point[i].x)
+			Max.x = _Triangle.Point[i].x;
+		else if (_Triangle.Point[i].x < Min.x)
+			Min.x = _Triangle.Point[i].x;
+
+		if (Max.y < _Triangle.Point[i].y)
+			Max.y = _Triangle.Point[i].y;
+		else if (_Triangle.Point[i].y < Min.y)
+			Min.y = _Triangle.Point[i].y;
+	}
+
+	// 점이 멀리 있다.
+	if (_Point.x < Min.x || Max.x < _Point.x || _Point.y < Min.y || Max.y < _Point.y)
+		return false;
+
+	// 실질적인 삼각형이 점 내부에 있는지 검사
 	if (CCW2D(_Triangle.Point[0], _Triangle.Point[1], _Point) == ECCWResult::CCW)
 		return false;
 	if (CCW2D(_Triangle.Point[1], _Triangle.Point[2], _Point) == ECCWResult::CCW)
